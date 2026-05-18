@@ -117,13 +117,17 @@
   .slide {
     position: absolute; inset: 0;
     display: none;
-    padding: 44px 56px 100px;
+    padding: 40px 56px 130px;
     overflow: hidden;
     animation: fadeIn 0.3s ease;
   }
   /* Cover/divider/break/thanks have no footnotes — restore normal padding */
   .slide:has(.cover),
   .slide:has(.divider) {
+    padding: 44px 56px;
+  }
+  /* Slides without footnotes shouldn't have the extra bottom space */
+  .slide:not(:has(.footnotes)) {
     padding: 44px 56px;
   }
   .slide.active { display: block; }
@@ -551,23 +555,29 @@
     font-size: 13px; color: var(--stone-gray); font-variant-numeric: tabular-nums;
   }
 
-  /* Footnotes — glossary at slide bottom for non-IT readers */
+  /* Footnotes — glossary strip at slide bottom (compact) */
   .footnotes {
     position: absolute;
-    bottom: 12px; left: 56px; right: 110px;
+    left: 56px; right: 110px;
+    bottom: 36px;
+    height: 76px;
     padding-top: 10px;
     border-top: 1px solid var(--border-cream);
     font-family: var(--font-sans);
-    font-size: 13px; line-height: 1.55;
+    font-size: 14px; line-height: 1.45;
     color: var(--olive-gray);
-    display: flex; flex-wrap: wrap; gap: 6px 18px;
-    max-height: 56px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
     overflow: hidden;
   }
   .footnotes .fn {
-    display: inline-flex; align-items: baseline;
-    white-space: normal;
+    display: flex; align-items: baseline;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
+  .footnotes .fn > * { overflow: hidden; text-overflow: ellipsis; }
   .footnotes .fn-num {
     display: inline-flex; align-items: center; justify-content: center;
     flex-shrink: 0;
@@ -578,13 +588,13 @@
     width: 16px; height: 16px;
     border-radius: 50%;
     margin-right: 6px;
-    vertical-align: 1px;
     line-height: 1;
   }
   .footnotes .fn-term {
     font-weight: 600;
     color: var(--charcoal-warm);
-    margin-right: 6px;
+    margin-right: 5px;
+    flex-shrink: 0;
   }
   .footnotes .fn-term::after {
     content: " —";
