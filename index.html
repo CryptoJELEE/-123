@@ -1,0 +1,2893 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 하네스 엔지니어링 — 사내 교육 (4h)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Nanum+Myeongjo:wght@400;700;800&display=swap">
+<style>
+  :root {
+    /* Claude (Anthropic) Design System — warm parchment palette */
+    --parchment: #f5f4ed;   /* page background */
+    --ivory: #faf9f5;       /* card surface */
+    --warm-sand: #e8e6dc;   /* button bg, prominent surface */
+    --dark-surface: #30302e;
+    --near-black: #141413;
+
+    --terracotta: #c96442;  /* primary brand accent */
+    --coral: #d97757;       /* lighter brand variant */
+
+    --charcoal-warm: #4d4c48;
+    --olive-gray: #5e5d59;
+    --stone-gray: #87867f;
+    --dark-warm: #3d3d3a;
+    --warm-silver: #b0aea5;
+
+    --border-cream: #f0eee6;
+    --border-warm: #e8e6dc;
+    --ring-warm: #d1cfc5;
+
+    --error-crimson: #b53333;
+    --focus-blue: #3898ec;
+
+    /* Aliases for legacy CSS */
+    --bg: var(--parchment);
+    --fg: var(--near-black);
+    --muted: var(--olive-gray);
+    --line: var(--border-cream);
+    --accent: var(--terracotta);
+    --accent-soft: #f5e6dc;
+    --pink: #f5d9c4;        /* warmed */
+    --green: #d9ddc9;       /* warmed */
+    --yellow: #ede2bd;      /* warmed */
+    --red: #ecc4be;         /* warmed */
+    --code-bg: var(--near-black);
+    --code-fg: #e8e6dc;
+
+    /* Fonts */
+    --font-serif: "Source Serif 4", "Nanum Myeongjo", Georgia, "Apple SD Gothic Neo", serif;
+    --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+    --font-mono: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--near-black); color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* Top bar — warm parchment */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 36px;
+    background: rgba(245,244,237,0.92); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-cream);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; font-size: 17px; color: var(--olive-gray);
+  }
+  .topbar .title {
+    font-family: var(--font-serif);
+    font-weight: 500; font-size: 17px;
+    color: var(--near-black);
+    letter-spacing: -0.01em;
+  }
+  .topbar .progress-track {
+    flex: 1; max-width: 360px; height: 3px; margin: 0 20px;
+    background: var(--border-warm); border-radius: 2px; overflow: hidden;
+  }
+  .topbar .progress-fill {
+    height: 100%; background: var(--terracotta); width: 0%;
+    transition: width 0.25s ease;
+  }
+  .topbar .nav-btns { display: flex; gap: 6px; align-items: center; }
+  .topbar button {
+    border: none;
+    background: var(--warm-sand);
+    box-shadow: 0 0 0 1px var(--ring-warm);
+    color: var(--charcoal-warm);
+    cursor: pointer;
+    padding: 4px 12px; font-size: 17px;
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    transition: background 0.15s ease;
+  }
+  .topbar button:hover { background: var(--border-cream); }
+
+  /* Slide deck — fixed 16:9 (1600x900) box, JS scales to viewport */
+  .deck {
+    position: fixed;
+    top: 50%; left: 50%;
+    width: 1600px; height: 900px;
+    background: var(--parchment);
+    transform-origin: center center;
+    transform: translate(-50%, calc(-50% + 18px)) scale(1);
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.12),
+      0 24px 80px rgba(0,0,0,0.4);
+    border-radius: 4px;
+  }
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    padding: 44px 56px;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Typography — Claude system, scaled up for projector */
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: var(--near-black);
+  }
+  h1 { font-size: 72px; line-height: 1.08; margin: 0 0 18px; }
+  h2 { font-size: 52px; line-height: 1.14; margin: 0 0 14px; }
+  h3 { font-size: 32px; line-height: 1.22; margin: 20px 0 10px; }
+  h4 {
+    font-family: var(--font-sans);
+    font-size: 24px; line-height: 1.3; margin: 14px 0 8px;
+    font-weight: 700; color: var(--near-black);
+  }
+  p, li {
+    font-size: 22px; line-height: 1.55;
+    color: var(--charcoal-warm);
+  }
+  .lead {
+    font-size: 28px; color: var(--olive-gray); line-height: 1.45;
+    font-family: var(--font-sans); font-weight: 400;
+  }
+  .muted { color: var(--olive-gray); }
+  .small { font-size: 18px; color: var(--stone-gray); }
+
+  /* Chapter tag — all warm-toned, ring-shadowed */
+  .chapter-tag {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 17px; font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 26px;
+    background: var(--ivory);
+    color: var(--charcoal-warm);
+    box-shadow: 0 0 0 1px var(--border-warm);
+  }
+  /* All chapter tags share the warm palette — slight variations for category */
+  .chapter-tag.c0 { color: var(--terracotta); box-shadow: 0 0 0 1px var(--terracotta); background: #faf2ee; }
+  .chapter-tag.c1 { color: var(--coral); box-shadow: 0 0 0 1px var(--coral); background: #fbf3ee; }
+  .chapter-tag.c2 { color: #8b6f47; box-shadow: 0 0 0 1px #c4a577; background: #f7f1e6; }
+  .chapter-tag.c3 { color: #927049; box-shadow: 0 0 0 1px #c9b07b; background: #faf5e9; }
+  .chapter-tag.c4 { color: var(--terracotta); box-shadow: 0 0 0 1px var(--ring-warm); background: var(--ivory); }
+  .chapter-tag.c5 { color: var(--error-crimson); box-shadow: 0 0 0 1px #d99090; background: #f9ebeb; }
+  .chapter-tag.c6 { color: #4d6657; box-shadow: 0 0 0 1px #a7baa9; background: #eef2ed; }
+  .chapter-tag.c7 { color: var(--charcoal-warm); box-shadow: 0 0 0 1px var(--ring-warm); background: var(--warm-sand); }
+
+  /* Hero / cover slide — use full width */
+  .cover {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%; width: 100%;
+  }
+  .cover h1 { font-size: 80px; line-height: 1.05; }
+  .cover .meta { margin-top: 24px; color: var(--muted); font-size: 18px; }
+
+  /* Layout helpers */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+
+  /* Cards — warm ivory surfaces with cream borders */
+  .card {
+    background: var(--ivory);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 0 0 1px var(--border-cream);
+    border: none;
+  }
+  .card h4 { margin-top: 0; }
+  .card.accent {
+    box-shadow: 0 0 0 1px var(--terracotta), 0 4px 24px rgba(201,100,66,0.08);
+  }
+  .card.green {
+    background: #f1f3ea;
+    box-shadow: 0 0 0 1px #c9d2b3;
+  }
+  .card.yellow {
+    background: #f9f1de;
+    box-shadow: 0 0 0 1px #d9c485;
+  }
+  .card.red {
+    background: #f7e7e0;
+    box-shadow: 0 0 0 1px #d99e85;
+  }
+  .card.blue {
+    background: var(--ivory);
+    box-shadow: 0 0 0 1px var(--ring-warm);
+  }
+
+  /* Code block — warm dark, soft ring shadow */
+  .code-wrap {
+    position: relative; margin: 12px 0;
+    background: var(--near-black);
+    color: var(--warm-silver);
+    border-radius: 10px; overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    box-shadow: 0 0 0 1px var(--dark-surface);
+  }
+  .code-wrap pre {
+    margin: 0; padding: 18px 22px; overflow: auto; line-height: 1.55;
+    white-space: pre; max-height: 580px;
+    color: #e8e6dc;
+  }
+  .code-wrap .lang {
+    position: absolute; top: 10px; right: 70px;
+    color: var(--stone-gray); font-size: 17px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    font-family: var(--font-sans);
+  }
+  .code-wrap .copy-btn {
+    position: absolute; top: 7px; right: 7px;
+    background: var(--dark-surface);
+    color: var(--warm-silver);
+    border: none;
+    box-shadow: 0 0 0 1px #45433f;
+    border-radius: 6px;
+    padding: 4px 10px; font-size: 16px; cursor: pointer;
+    font-family: var(--font-sans);
+    transition: background 0.15s;
+  }
+  .code-wrap .copy-btn:hover { background: #45433f; }
+  .code-wrap .copy-btn.copied {
+    background: var(--terracotta);
+    color: var(--ivory);
+    box-shadow: 0 0 0 1px var(--terracotta);
+  }
+
+  /* OS pair — Mac/Windows side-by-side (병기) */
+  .os-pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin: 14px 0;
+  }
+  .os-col { display: flex; flex-direction: column; }
+  .os-label {
+    font-size: 17px; font-weight: 700;
+    padding: 6px 12px; border-radius: 6px 6px 0 0;
+    color: white; display: inline-block; align-self: flex-start;
+    margin-bottom: 0;
+  }
+  .os-label.mac { background: var(--dark-surface); color: var(--ivory); }
+  .os-label.win { background: var(--charcoal-warm); color: var(--ivory); }
+  .os-col .code-wrap { margin-top: 0; border-radius: 0 8px 8px 8px; }
+
+  /* Legacy OS tabs (kept for any remaining instance, but most are replaced) */
+  .os-tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid var(--line); }
+  .os-tab { padding: 8px 16px; cursor: pointer; font-size: 16px; font-weight: 600; border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; }
+  .os-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .os-panel { display: none; }
+  .os-panel.active { display: block; }
+
+  /* English term with Korean gloss */
+  .en {
+    background: var(--warm-sand);
+    color: var(--terracotta);
+    padding: 1px 7px; border-radius: 4px;
+    font-weight: 600; font-size: 0.95em;
+  }
+  .en-ko { white-space: nowrap; }
+  .en-ko .ko {
+    color: var(--stone-gray); font-size: 0.9em; margin-left: 4px;
+  }
+  .ko {
+    color: var(--stone-gray); font-size: 0.88em; margin-left: 4px;
+    font-weight: normal;
+  }
+
+  /* Analogy callout — warm sand with terracotta accent */
+  .analogy {
+    background: var(--ivory);
+    box-shadow: 0 0 0 1px var(--ring-warm);
+    border-left: 5px solid var(--coral);
+    padding: 16px 22px;
+    border-radius: 10px;
+    font-size: 20px; line-height: 1.55;
+    margin-top: 20px;
+    color: var(--charcoal-warm);
+    font-family: var(--font-sans);
+  }
+  .analogy strong { color: var(--terracotta); font-weight: 600; }
+  .analogy em { font-style: italic; color: var(--olive-gray); }
+  .analogy::before {
+    content: "비유";
+    display: inline-block;
+    background: var(--terracotta); color: var(--ivory);
+    font-weight: 600; font-size: 17px;
+    letter-spacing: 0.1em;
+    padding: 4px 12px; border-radius: 999px;
+    margin-right: 14px;
+    vertical-align: 3px;
+    text-transform: uppercase;
+  }
+
+  /* Hands-on (실습) — terracotta accent */
+  .handson {
+    background: #faf2ee;
+    border-radius: 16px;
+    padding: 28px 32px;
+    box-shadow: 0 0 0 1px var(--terracotta);
+  }
+  .handson-tag {
+    display: inline-block;
+    background: var(--terracotta); color: var(--ivory);
+    font-family: var(--font-sans);
+    font-size: 17px; font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 6px 16px;
+    border-radius: 999px; margin-bottom: 16px;
+  }
+  .handson h2, .handson h3 { color: var(--near-black); }
+  .check-list { padding-left: 0; list-style: none; margin: 14px 0; }
+  .check-list li {
+    padding: 7px 0; padding-left: 36px; position: relative;
+    font-size: 20px;
+    color: var(--charcoal-warm);
+  }
+  .check-list li::before {
+    content: "□"; position: absolute; left: 0; font-size: 26px;
+    color: var(--terracotta);
+    font-weight: 700;
+  }
+
+  /* Concentric circles diagram */
+  .diagram-harness {
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .ring { display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .ring-outer { width: 360px; height: 360px; background: #f9f1de; box-shadow: 0 0 0 1px #d9c485; }
+  .ring-mid { width: 270px; height: 270px; background: #f1f3ea; box-shadow: 0 0 0 1px #c9d2b3; }
+  .ring-in { width: 180px; height: 180px; background: var(--ivory); box-shadow: 0 0 0 1px var(--border-warm); }
+  .ring-core {
+    width: 100px; height: 100px;
+    background: var(--terracotta);
+    color: var(--ivory);
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 26px;
+    box-shadow: 0 0 0 1px var(--coral);
+  }
+
+  /* Phase cards */
+  .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .phase {
+    background: var(--ivory);
+    border-radius: 12px; padding: 24px 28px;
+    box-shadow: 0 0 0 1px var(--border-cream);
+  }
+  .phase .ph-num {
+    display: inline-block;
+    background: var(--near-black); color: var(--ivory);
+    padding: 5px 14px; border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 17px; font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .phase .ph-year { float: right; color: var(--stone-gray); font-size: 17px; margin-top: 7px; }
+  .phase h3 { font-size: 34px; margin: 16px 0 10px; color: var(--near-black); }
+  .phase.active {
+    box-shadow: 0 0 0 2px var(--terracotta), 0 8px 32px rgba(201,100,66,0.12);
+  }
+  .phase.active .ph-num { background: var(--terracotta); }
+
+  /* Inline code — warm sand with terracotta text */
+  code.inline {
+    background: var(--warm-sand);
+    color: var(--terracotta);
+    padding: 2px 9px;
+    border-radius: 5px; font-size: 0.94em;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  /* Tables — warm, editorial */
+  table {
+    width: 100%; border-collapse: collapse; margin: 12px 0;
+    background: var(--ivory); border-radius: 10px; overflow: hidden;
+    font-size: 19px;
+    box-shadow: 0 0 0 1px var(--border-cream);
+  }
+  th, td {
+    padding: 11px 18px; text-align: left;
+    border-bottom: 1px solid var(--border-cream);
+  }
+  th {
+    background: var(--warm-sand);
+    font-family: var(--font-sans);
+    font-weight: 600; font-size: 17px;
+    color: var(--charcoal-warm);
+    letter-spacing: 0.02em;
+  }
+  td { color: var(--charcoal-warm); }
+  tr:last-child td { border-bottom: none; }
+
+  /* Slide footer */
+  .slide-footer {
+    position: absolute; bottom: 16px; right: 24px;
+    font-size: 16px; color: var(--muted);
+  }
+
+  /* Agenda table */
+  .agenda-row {
+    display: grid; grid-template-columns: 90px 1fr 380px 110px 90px;
+    align-items: center; gap: 16px;
+    padding: 13px 22px; border-bottom: 1px solid var(--border-cream);
+    font-size: 20px;
+    color: var(--charcoal-warm);
+  }
+  .agenda-row .pt {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--terracotta);
+    font-size: 22px;
+  }
+  .agenda-row .tm { color: var(--stone-gray); font-variant-numeric: tabular-nums; text-align: right; font-size: 19px; }
+  .agenda-row .ty {
+    text-align: center; font-size: 17px; padding: 4px 12px;
+    border-radius: 999px; font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .agenda-row .ty.lec { background: var(--ivory); color: var(--charcoal-warm); box-shadow: 0 0 0 1px var(--border-warm); }
+  .agenda-row .ty.ex  { background: #faf2ee; color: var(--terracotta); box-shadow: 0 0 0 1px var(--coral); }
+  .agenda-row .ty.br  { background: var(--warm-sand); color: var(--stone-gray); }
+  .agenda-row .out {
+    font-size: 17px; color: var(--olive-gray);
+    background: var(--parchment);
+    padding: 6px 14px; border-radius: 6px;
+    box-shadow: 0 0 0 1px var(--border-cream);
+  }
+  .agenda-row .out.empty { background: transparent; }
+
+  /* Big number callout */
+  .bignum {
+    font-family: var(--font-serif);
+    font-size: 88px; font-weight: 500; line-height: 1;
+    color: var(--terracotta);
+  }
+
+  /* Anti pattern badges — terracotta toned */
+  .anti-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .anti {
+    background: var(--ivory);
+    padding: 18px 22px;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px var(--border-cream);
+    border-left: 4px solid var(--terracotta);
+    display: flex; align-items: center; gap: 18px;
+  }
+  .anti .anum {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--terracotta); color: var(--ivory);
+    font-family: var(--font-serif);
+    font-weight: 500; font-size: 18px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  /* Section divider slide — full width */
+  .divider {
+    display: flex; flex-direction: column; justify-content: center;
+    height: 100%; width: 100%;
+  }
+  .divider h1 { font-size: 88px; line-height: 1.05; }
+
+  /* Mini agenda inside divider — full width */
+  .mini-agenda {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-top: 44px; width: 100%;
+  }
+  .mini-agenda .item {
+    background: var(--ivory);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: 0 0 0 1px var(--border-cream);
+    border-left: 4px solid var(--terracotta);
+  }
+  .mini-agenda .item .n {
+    font-family: var(--font-sans);
+    font-size: 17px; font-weight: 700;
+    color: var(--terracotta);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .mini-agenda .item .t {
+    font-family: var(--font-serif);
+    font-size: 22px; font-weight: 500;
+    margin-top: 8px;
+    color: var(--near-black);
+    line-height: 1.22;
+  }
+  .mini-agenda .item .d {
+    font-size: 16px; color: var(--olive-gray);
+    margin-top: 6px; line-height: 1.45;
+  }
+
+  /* Print — landscape, one slide per page */
+  @media print {
+    @page { size: 1600px 900px; margin: 0; }
+    body { background: white; overflow: visible; height: auto; }
+    .topbar, .slide-num { display: none !important; }
+    .deck {
+      position: static; transform: none !important;
+      width: 1600px; height: 900px; box-shadow: none; border-radius: 0;
+    }
+    .slide {
+      display: block !important; page-break-after: always;
+      position: relative; inset: auto;
+      width: 1600px; height: 900px;
+    }
+  }
+
+  /* Slide number indicator */
+  .slide-num {
+    position: absolute; bottom: 16px; left: 24px;
+    font-size: 17px; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title">Claude Code 하네스 엔지니어링 · 사내 교육 (4h)</div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+  <div class="nav-btns">
+    <button onclick="prev()" title="이전 (←)">◀</button>
+    <span id="slide-counter" style="padding:4px 8px; font-variant-numeric: tabular-nums;">1 / —</span>
+    <button onclick="next()" title="다음 (→)">▶</button>
+  </div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ============================================================== -->
+<!-- COVER -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="cover">
+    <h1>Claude Code로<br>하네스 엔지니어링 시작하기</h1>
+    <p class="lead" style="margin-top: 32px; font-size: 28px;">
+      AI를 단발 질의가 아니라 <strong>업무를 끝까지 끌고 가는 운영 환경</strong>으로.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 52px;">
+      <div style="background: var(--ivory); padding: 24px 26px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-top: 4px solid var(--terracotta);">
+        <div style="font-family: var(--font-sans); font-size: 17px; font-weight: 700; color: var(--terracotta); letter-spacing: 0.1em;">PART 0 — 2</div>
+        <div style="font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin-top: 8px; color: var(--near-black);">기본 다지기</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 10px; line-height: 1.5;">하네스 개념 · 터미널 · 설치 · 첫 사용 · Plan mode</div>
+      </div>
+      <div style="background: var(--ivory); padding: 24px 26px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-top: 4px solid var(--coral);">
+        <div style="font-family: var(--font-sans); font-size: 17px; font-weight: 700; color: var(--coral); letter-spacing: 0.1em;">PART 3 — 4</div>
+        <div style="font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin-top: 8px; color: var(--near-black);">기억과 전문성</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 10px; line-height: 1.5;">CLAUDE.md 메모리 · 전문 역할 Subagent</div>
+      </div>
+      <div style="background: var(--ivory); padding: 24px 26px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-top: 4px solid #927049;">
+        <div style="font-family: var(--font-sans); font-size: 17px; font-weight: 700; color: #927049; letter-spacing: 0.1em;">PART 5 — 6</div>
+        <div style="font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin-top: 8px; color: var(--near-black);">자동화와 확장</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 10px; line-height: 1.5;">슬래시 명령 · Hooks · MCP · Agent Teams</div>
+      </div>
+      <div style="background: var(--ivory); padding: 24px 26px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-top: 4px solid var(--charcoal-warm);">
+        <div style="font-family: var(--font-sans); font-size: 17px; font-weight: 700; color: var(--charcoal-warm); letter-spacing: 0.1em;">PART 7</div>
+        <div style="font-family: var(--font-serif); font-size: 26px; font-weight: 500; margin-top: 8px; color: var(--near-black);">사내 적용</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 10px; line-height: 1.5;">업무별 하네스 설계 · 30일 로드맵</div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 48px; margin-top: 52px; padding-top: 28px; border-top: 1px solid var(--border-cream); color: var(--olive-gray); font-size: 20px;">
+      <div><strong style="color: var(--near-black);">4시간</strong> · 강의 + 핸즈온 실습</div>
+      <div><strong style="color: var(--near-black);">완전 기초</strong> · 터미널 처음이어도 OK</div>
+      <div><strong style="color: var(--near-black);">Mac &amp; Windows</strong> · 양쪽 다 진행</div>
+      <div><strong style="color: var(--near-black);">즉시 활용</strong> · 내 업무에 바로 적용</div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENDA -->
+<section class="slide">
+  <span class="chapter-tag c4">Agenda</span>
+  <h2>오늘 4시간의 흐름</h2>
+
+  <div style="background: white; border-radius: 12px; border: 1px solid var(--line); margin-top: 18px;">
+    <div class="agenda-row"><span class="pt">Part 0</span><span>오리엔테이션 · 하네스란 무엇인가</span><span class="out">개념 4가지 정의</span><span class="ty lec">강의</span><span class="tm">35분</span></div>
+    <div class="agenda-row"><span class="pt">Part 1</span><span>터미널 기초 · Node.js · Claude Code 설치 (npm 권장)</span><span class="out">claude --version 통과</span><span class="ty ex">강의+실습</span><span class="tm">30분</span></div>
+    <div class="agenda-row"><span class="pt">—</span><span>휴식</span><span class="out empty"></span><span class="ty br">Break</span><span class="tm">10분</span></div>
+    <div class="agenda-row"><span class="pt">Part 2</span><span>Claude Code 첫 사용 · Plan mode · 권한</span><span class="out">weekly-report.md 생성</span><span class="ty ex">강의+실습</span><span class="tm">35분</span></div>
+    <div class="agenda-row"><span class="pt">Part 3</span><span>메모리 · CLAUDE.md</span><span class="out">내 프로젝트 CLAUDE.md</span><span class="ty ex">강의+실습</span><span class="tm">25분</span></div>
+    <div class="agenda-row"><span class="pt">—</span><span>휴식</span><span class="out empty"></span><span class="ty br">Break</span><span class="tm">10분</span></div>
+    <div class="agenda-row"><span class="pt">Part 4</span><span>Subagents — 손과 발</span><span class="out">doc-reviewer 에이전트</span><span class="ty ex">강의+실습</span><span class="tm">30분</span></div>
+    <div class="agenda-row"><span class="pt">Part 5</span><span>Custom Slash Commands · Hooks</span><span class="out">/회의록정리 + 알림 훅</span><span class="ty ex">강의+실습</span><span class="tm">30분</span></div>
+    <div class="agenda-row"><span class="pt">Part 6</span><span>MCP — 외부 도구 연결 + Agent Teams</span><span class="out">filesystem MCP 연결</span><span class="ty lec">강의</span><span class="tm">15분</span></div>
+    <div class="agenda-row"><span class="pt">Part 7</span><span>업무별 하네스 설계 · 안티패턴 · 30일 로드맵 · Q&amp;A</span><span class="out">사내 적용 시나리오</span><span class="ty lec">강의</span><span class="tm">20분</span></div>
+  </div>
+
+  <div style="display: flex; gap: 12px; margin-top: 16px;">
+    <div style="flex:1; background: var(--ivory); box-shadow: 0 0 0 1px var(--border-warm); padding: 12px 16px; border-radius: 8px; text-align:center;">
+      <div style="font-size: 17px; font-weight:700; color:#3730a3;">강의</div>
+      <div style="font-size: 30px; font-weight: 800; color: var(--charcoal-warm); margin-top: 2px;">132<span style="font-size: 16px; font-weight: 500;">분</span></div>
+    </div>
+    <div style="flex:1; background: #faf2ee; box-shadow: 0 0 0 1px var(--coral); padding: 12px 16px; border-radius: 8px; text-align:center;">
+      <div style="font-size: 17px; font-weight:700; color: var(--terracotta);">실습 (Hands-on)</div>
+      <div style="font-size: 30px; font-weight: 800; color: var(--terracotta); margin-top: 2px;">88<span style="font-size: 16px; font-weight: 500;">분</span></div>
+    </div>
+    <div style="flex:1; background: var(--warm-sand); padding: 12px 16px; border-radius: 8px; text-align:center;">
+      <div style="font-size: 17px; font-weight:700; color:#6b7280;">휴식</div>
+      <div style="font-size: 30px; font-weight: 800; color: var(--charcoal-warm); margin-top: 2px;">20<span style="font-size: 16px; font-weight: 500;">분</span></div>
+    </div>
+    <div style="flex:1; background:white; padding: 12px 16px; border-radius: 8px; text-align:center; border: 1px solid var(--line);">
+      <div style="font-size: 17px; font-weight:700; color: var(--accent);">실습 산출물</div>
+      <div style="font-size: 30px; font-weight: 800; color: #1e3a8a; margin-top: 2px;">5<span style="font-size: 16px; font-weight: 500;">개</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- PART 0 - DIVIDER -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c0">Part 0 · 35 min</span>
+    <h1>하네스가<br><span style="color: var(--accent)">정확히 무엇인가</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">먼저 개념을 한 번 짚고 갑니다</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">개념 1</div><div class="t">Prompt → Context → Harness</div><div class="d">3년간 AI를 다루는 방식의 진화</div></div>
+      <div class="item"><div class="n">개념 2</div><div class="t">3겹 동심원 구조</div><div class="d">Runtime · Capabilities · Safety</div></div>
+      <div class="item"><div class="n">개념 3</div><div class="t">Agent · Skill · Harness</div><div class="d">두뇌·손과 발·신경계</div></div>
+      <div class="item"><div class="n">개념 4</div><div class="t">집중할 4가지</div><div class="d">도구·액션루프·상태·메모리</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HARNESS - Phase evolution -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 개념</span>
+  <h2>Prompt <span class="ko">(지시문)</span> → Context <span class="ko">(맥락)</span> → Harness <span class="ko">(운영틀)</span></h2>
+  <p class="lead">시대별로 AI에게 일을 시키는 방식이 달라졌습니다.</p>
+
+  <div class="phase-grid" style="margin-top: 28px;">
+    <div class="phase">
+      <span class="ph-num">PHASE 1</span><span class="ph-year">2023</span>
+      <h3>Prompt <span class="ko" style="font-size:18px; font-weight:500;">(프롬프트 · 지시문)</span></h3>
+      <p class="small">ChatGPT, Claude, Gemini</p>
+      <ul style="margin-top: 8px;">
+        <li>자연어로 의도와 제약을 전달</li>
+        <li>역할·형식·예시로 답변 품질 조정</li>
+        <li>모델의 추론을 끌어내기 위함</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <span class="ph-num">PHASE 2</span><span class="ph-year">2025</span>
+      <h3>Context <span class="ko" style="font-size:18px; font-weight:500;">(컨텍스트 · 맥락)</span></h3>
+      <p class="small">Cursor, Manus</p>
+      <ul style="margin-top: 8px;">
+        <li>코드베이스·문서·브라우저 상태를 맥락으로 연결</li>
+        <li>필요한 파일·외부 정보를 찾아 배경 구성</li>
+        <li>긴 작업에서 맥락 손실을 줄이기 위함</li>
+      </ul>
+    </div>
+    <div class="phase active">
+      <span class="ph-num">PHASE 3</span><span class="ph-year">2026</span>
+      <h3 style="color: var(--accent);">Harness <span class="ko" style="font-size:18px; font-weight:500;">(하네스 · 운영틀)</span></h3>
+      <p class="small">Claude Code, Codex</p>
+      <ul style="margin-top: 8px;">
+        <li>파일 수정·명령 실행·테스트를 한 루프로 연결</li>
+        <li>작업을 나누고 실행 결과를 보며 다음 액션 결정</li>
+        <li>결과를 검증하고 반복 개선하기 위함</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>요리 비유</strong> — 프롬프트는 "<em>스파게티 만들어줘</em>" 한마디. 컨텍스트는 "<em>냉장고에 토마토와 면이 있어, 4인분, 매운 거 좋아함</em>"까지 알려주기. 하네스는 아예 <strong>로봇 셰프</strong>가 냉장고를 열고 재료 꺼내 끓이고 간 보고 다시 끓이며 완성까지 책임지는 것.
+  </div>
+</section>
+
+<!-- HARNESS 3 layers -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 개념</span>
+  <h2>하네스는 3겹의 동심원으로 이해할 수 있습니다</h2>
+
+  <div class="grid-2" style="margin-top: 24px; align-items: center;">
+    <div class="diagram-harness">
+      <div class="ring ring-outer">
+        <div class="ring ring-mid">
+          <div class="ring ring-in">
+            <div class="ring ring-core">LLM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="background: #f9f1de; padding: 12px 16px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 0 0 1px #d9c485;">
+        <strong style="color: var(--terracotta); font-size: 19px;">Safety &amp; Scale <span class="ko">(안전·확장 · 가장 바깥)</span></strong>
+        <p class="small" style="margin: 4px 0 0;">Verification <span class="ko">(검증)</span> · Guardrails <span class="ko">(안전장치)</span> · Tool Scoping <span class="ko">(도구 범위)</span> · Subagent Orchestration <span class="ko">(서브에이전트 조율)</span></p>
+      </div>
+      <div style="background: #d1fae5; padding: 12px 16px; border-radius: 8px; margin-bottom: 10px;">
+        <strong style="color: #6b7a3f; font-size: 19px;">Capabilities <span class="ko">(능력 · 중간)</span></strong>
+        <p class="small" style="margin: 4px 0 0;">Tools <span class="ko">(도구)</span> · Memory <span class="ko">(기억)</span> · Context <span class="ko">(맥락)</span> · State <span class="ko">(상태)</span></p>
+      </div>
+      <div style="background: #faf2ee; padding: 12px 16px; border-radius: 8px;">
+        <strong style="color: var(--terracotta); font-size: 19px;">Runtime <span class="ko">(실행부 · 안쪽)</span></strong>
+        <p class="small" style="margin: 4px 0 0;">Prompt Construction <span class="ko">(프롬프트 구성)</span> · Orchestration Loop <span class="ko">(작업 루프)</span> · Output Parsing <span class="ko">(출력 해석)</span> · Error Handling <span class="ko">(오류 처리)</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>회사 비유</strong> — LLM은 신입사원의 <strong>두뇌</strong>, Runtime은 그가 쓰는 책상·노트북, Capabilities는 사내 시스템 접근 권한과 회사 메모리(위키·캘린더), Safety &amp; Scale은 컴플라이언스 부서와 결재선 — 바깥으로 갈수록 "<strong>안전하게 일을 잘 굴리기 위한 장치</strong>"가 늘어납니다.
+  </div>
+</section>
+
+<!-- SKILL vs HARNESS -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 개념</span>
+  <h2>Agent <span class="ko">(에이전트)</span> · Skill <span class="ko">(스킬)</span> · Harness <span class="ko">(하네스)</span> 는 모두 다릅니다</h2>
+  <p class="lead muted">셋의 역할을 분리해서 기억하세요</p>
+
+  <div class="grid-3" style="margin-top: 28px;">
+    <div class="card" style="border-top: 3px solid var(--terracotta);">
+      <h4 style="color: var(--terracotta);">1. Agent</h4>
+      <h3 style="margin: 4px 0 8px;">두뇌</h3>
+      <p class="small">목표를 해석하고 다음 행동을 결정하는 모델 중심의 판단 주체</p>
+      <ul style="margin-top: 8px;">
+        <li>목표·제약 해석</li>
+        <li>계획 수립과 우선순위 결정</li>
+        <li>결과를 보고 전략 조정</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top: 3px solid #6b7a3f;">
+      <h4 style="color: #6b7a3f;">2. Skills</h4>
+      <h3 style="margin: 4px 0 8px;">손과 발</h3>
+      <p class="small">Agent가 필요할 때 호출하는 재사용 가능한 작업 절차와 실행 능력</p>
+      <ul style="margin-top: 8px;">
+        <li>검색·파일 처리·API 연동</li>
+        <li>스크립트·템플릿·지침 묶음</li>
+        <li>반복 작업을 일관되게 수행</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top: 4px solid #ca8a04;">
+      <h4 style="color: #ca8a04;">3. Harness</h4>
+      <h3 style="margin: 4px 0 8px;">신경계</h3>
+      <p class="small">Agent가 안전하게 일하도록 컨텍스트·권한·상태·실행 루프를 조율하는 운영 환경</p>
+      <ul style="margin-top: 8px;">
+        <li>허용 도구와 안전 경계 관리</li>
+        <li>호출 순서와 재시도 제어</li>
+        <li>대화·메모리·상태 추적</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>요리사 비유</strong> — Agent는 <strong>요리사</strong>(판단·결정), Skill은 그가 가진 <strong>레시피와 칼질 기술</strong>(재사용 능력), Harness는 그가 일하는 <strong>주방 전체</strong>(가스레인지·환기·소화기·동선). 좋은 주방이 없으면 아무리 요리사가 뛰어나도 큰 식당은 굴리기 어렵습니다.
+  </div>
+</section>
+
+<!-- 4 things to focus -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 개념</span>
+  <h2>하네스는 4가지에 집중하면 충분합니다</h2>
+  <p class="lead muted">상태 관리·도구 관리·메모리 관리·액션 루프</p>
+
+  <div class="grid-4" style="margin-top: 32px;">
+    <div class="card blue">
+      <h4>① 도구 관리</h4>
+      <p class="small">반복 작업을 코드·API 호출로 만들고 안정적으로 실행</p>
+      <p class="small muted" style="margin-top:8px;">→ Claude Code의 <code class="inline">Bash</code>, <code class="inline">Edit</code>, MCP</p>
+    </div>
+    <div class="card blue">
+      <h4>② 액션 루프</h4>
+      <p class="small">계획·실행·확인을 반복하며 작업을 끝까지 진행</p>
+      <p class="small muted" style="margin-top:8px;">→ <code class="inline">Plan mode</code>, Subagent</p>
+    </div>
+    <div class="card blue">
+      <h4>③ 상태 관리</h4>
+      <p class="small">진행 단계·완료 여부·평가 결과를 추적해 현재 상태를 관리</p>
+      <p class="small muted" style="margin-top:8px;">→ TodoWrite, 커밋 단위</p>
+    </div>
+    <div class="card blue">
+      <h4>④ 메모리 관리</h4>
+      <p class="small">사용자 선호·반복 피드백을 저장하고 재사용</p>
+      <p class="small muted" style="margin-top:8px;">→ <code class="inline">CLAUDE.md</code></p>
+    </div>
+  </div>
+
+  <div style="margin-top: 18px; padding: 14px 18px; background: white; border-left: 4px solid var(--terracotta); border-radius: 8px;">
+    <p style="margin:0;">오늘 4시간 동안 배울 Claude Code의 모든 기능은 이 4가지 중 하나에 정확히 매핑됩니다.</p>
+  </div>
+
+  <div class="analogy">
+    <strong>자동차 비유</strong> — 도구 관리는 <strong>핸들·페달·기어</strong>(원하는 동작을 만드는 부품), 액션 루프는 <strong>주행 자체</strong>(계속 앞을 보고 조정), 상태 관리는 <strong>계기판</strong>(속도·연료·진행 단계), 메모리 관리는 <strong>내비게이션 즐겨찾기와 시트 메모리</strong>(반복 설정 저장).
+  </div>
+</section>
+
+<!-- Why Claude Code is the harness -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 개념</span>
+  <h2>Claude Code = 손에 잡히는 하네스</h2>
+  <p class="lead">이론을 코드 없이 실험할 수 있는 가장 빠른 길</p>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card">
+      <h4>다른 도구들과의 차이</h4>
+      <table>
+        <thead><tr><th>도구</th><th>위치</th></tr></thead>
+        <tbody>
+          <tr><td>ChatGPT, Claude.ai</td><td>Phase 1 — 프롬프트</td></tr>
+          <tr><td>Cursor, Windsurf</td><td>Phase 2 — 컨텍스트(IDE 안)</td></tr>
+          <tr><td><strong>Claude Code</strong></td><td><strong>Phase 3 — 하네스(터미널)</strong></td></tr>
+          <tr><td>OpenAI Codex CLI</td><td>Phase 3 — 하네스</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card accent">
+      <h4>오늘 우리가 실습할 4가지 영역</h4>
+      <ul>
+        <li><strong>도구</strong> — Bash · Edit · MCP 서버 추가</li>
+        <li><strong>액션 루프</strong> — Plan mode, Subagents</li>
+        <li><strong>메모리</strong> — CLAUDE.md (project / user)</li>
+        <li><strong>자동화</strong> — Custom Slash Commands, Hooks</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>운전 면허 비유</strong> — ChatGPT는 <strong>택시 호출</strong>(어디로 가달라 한 번 말함), Cursor는 <strong>운전 보조</strong>(차선 유지·자동 브레이크), Claude Code는 <strong>직접 운전대 잡기</strong> — 길게 가는 여정도 끝까지 끌고 갈 수 있습니다.
+  </div>
+</section>
+
+<!-- Why this matters in a corporate setting -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 동기</span>
+  <h2>왜 사내에서 하네스가 필요한가</h2>
+  <p class="lead">개인이 ChatGPT 한 번 묻고 답 받는 것과, 회사 업무가 끝까지 굴러가는 것은 다른 문제입니다.</p>
+
+  <div class="grid-3" style="margin-top: 20px;">
+    <div class="card red">
+      <h4>업무가 많고 복잡합니다</h4>
+      <ul class="small">
+        <li>분석·문서 작성·검수·공유까지 한 번에</li>
+        <li>여러 단계를 빠짐없이 순서대로</li>
+        <li>매번 손으로 하면 시간이 부족</li>
+      </ul>
+    </div>
+    <div class="card yellow">
+      <h4>품질·일관성이 중요합니다</h4>
+      <ul class="small">
+        <li>사내 톤·형식·용어가 통일되어야</li>
+        <li>"임원이 30초에 읽도록" 같은 규칙</li>
+        <li>실수 1건이 큰 비용이 되는 영역 다수</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h4>보안·승인 경계가 분명합니다</h4>
+      <ul class="small">
+        <li>원본 데이터는 절대 수정 금지</li>
+        <li>외부 전송은 사람이 한 번 더 검토</li>
+        <li>도구·권한을 사전에 좁혀야</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top: 18px; padding: 12px 16px; background: #f5f5f4; border-radius: 8px;">
+    <p style="margin:0;"><strong>하네스로 만들 만한 사내 후보:</strong> 주간/월간 보고서, 회의록 정리, 이메일 초안, 경쟁사 리서치, 데이터 검증, 문서 검수 — 부서 불문하고 매주 반복되는 작업 전부.</p>
+  </div>
+
+  <div class="analogy">
+    <strong>인턴 vs 정직원 비유</strong> — 인턴에게 "보고서 좀 써줘"(단발 프롬프트) 하면 매번 다시 설명해야 함. 정직원에겐 <strong>업무 매뉴얼·결재선·시스템 권한</strong>(= 하네스)이 있어서 알아서 끝까지 굴러갑니다. 회사가 직원에게 "하네스"를 제공하듯, AI에게도 똑같이 필요합니다.
+  </div>
+</section>
+
+<!-- Goals of today -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 목표</span>
+  <h2>오늘 끝나면 여러분은</h2>
+
+  <div class="grid-2" style="margin-top: 24px; gap: 20px;">
+    <div class="card green">
+      <h4>✅ 할 수 있게 됩니다</h4>
+      <ul>
+        <li>터미널에서 Claude Code를 설치·로그인·실행</li>
+        <li>Plan mode로 안전하게 작업 계획 검토</li>
+        <li>CLAUDE.md 로 프로젝트 컨텍스트 주입</li>
+        <li>나만의 Subagent와 Slash Command 작성</li>
+        <li>Hook으로 자동 검증·알림 추가</li>
+        <li>MCP로 외부 도구 1개 연결</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>📦 가져가는 것</h4>
+      <ul>
+        <li>이 슬라이드 1개 (모든 코드 포함)</li>
+        <li>실습 4종의 산출물 (각자 노트북)</li>
+        <li>내일 출근해서 바로 적용 가능한 CLAUDE.md 템플릿</li>
+        <li>사내 슬랙에 공유할 안티패턴 체크리스트</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+<!-- Pre-check -->
+<section class="slide">
+  <span class="chapter-tag c0">Part 0 · 사전 점검</span>
+  <h2>지금 노트북에서 확인해주세요</h2>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card">
+      <h4>① 계정</h4>
+      <ul>
+        <li>Anthropic 계정 (Pro, Max, Team, Enterprise 또는 Console 중 1개)</li>
+        <li>무료 Claude.ai 계정은 Claude Code 사용 불가</li>
+      </ul>
+      <p class="small muted">계정이 없으신 분은 사내 IT에 문의하세요 — 진행 가능하지만 실습 일부 제한.</p>
+    </div>
+    <div class="card">
+      <h4>② 노트북</h4>
+      <ul>
+        <li>macOS 또는 Windows 10/11</li>
+        <li>관리자 권한 (설치를 위해)</li>
+        <li>인터넷 연결 (사내망 프록시 확인)</li>
+        <li>여유 디스크 1GB 이상</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; padding: 16px 20px; background: #f9f1de; border-left: 4px solid #f59e0b; border-radius: 8px;">
+    <strong>🛟 진행 중 막히면</strong> — 손을 들어주세요. 옆 분과 짝으로 도와주는 것도 환영합니다. 슬라이드 우상단 ▶ 버튼이나 화살표키로 자유롭게 앞뒤로 이동할 수 있습니다.
+  </div>
+  </section>
+
+<!-- ============================================================== -->
+<!-- PART 1 - DIVIDER -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c1">Part 1 · 30 min</span>
+    <h1>터미널과<br><span style="color: var(--accent)">Claude Code 설치</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">완전 기초부터 — Mac &amp; Windows 모두 다룹니다</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">강의</div><div class="t">터미널이 뭐죠</div><div class="d">마우스 대신 키보드로 명령</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">기본 명령어 5개 + Node.js</div><div class="d">pwd · ls · cd · mkdir · 윈도우는 Node 사전 설치</div></div>
+      <div class="item"><div class="n">🟡 실습 1</div><div class="t">Claude Code 설치</div><div class="d">Mac은 curl · Windows는 npm · 로그인</div></div>
+      <div class="item"><div class="n">실습</div><div class="t">첫 실행 확인</div><div class="d">claude --version · 프롬프트 진입</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Terminal: what is it -->
+<section class="slide">
+  <span class="chapter-tag c1">Part 1 · 강의</span>
+  <h2>터미널이 뭐죠?</h2>
+  <p class="lead">마우스 대신 <strong>키보드로 컴퓨터에게 명령을 내리는 창</strong>입니다.</p>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card">
+      <h4>🖱️ 평소 우리가 하는 일</h4>
+      <p>Finder/탐색기 → 폴더 클릭 → 더블클릭 → 파일 열기</p>
+    </div>
+    <div class="card accent">
+      <h4>⌨️ 터미널에서</h4>
+      <p>한 줄 입력: <code class="inline">cd Documents</code> → 폴더로 이동</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 18px;">왜 Claude Code는 터미널을 쓰나요?</h3>
+  <ul>
+    <li>AI에게 "내 컴퓨터의 파일을 읽고 고쳐줘"라고 시키려면 <strong>파일 시스템 접근 권한</strong>이 필요합니다.</li>
+    <li>터미널은 그 권한을 가장 직접적으로 제공하는 환경입니다 (편집기·웹앱 안에 갇혀있지 않음).</li>
+    <li>모든 개발 도구는 결국 터미널에서 명령으로 호출됩니다 — git, docker, npm, python …</li>
+  </ul>
+
+  <div class="analogy">
+    <strong>주방 비유</strong> — 손님으로 식당에 가면 메뉴판에 있는 것만 주문할 수 있습니다(웹앱·편집기). <strong>주방에 들어가면</strong> 재료·도구·불을 직접 다룰 수 있죠 — 터미널이 그 주방입니다. 메뉴판에 없는 것도 만들 수 있어요.
+  </div>
+</section>
+
+<!-- Open terminal Mac/Win side-by-side -->
+<section class="slide">
+  <span class="chapter-tag c1">Part 1 · 강의</span>
+  <h2>터미널을 여는 방법</h2>
+  <p class="lead muted">본인 OS에 해당하는 칼럼을 보세요 — 양쪽 다 표시합니다</p>
+
+  <div class="os-pair">
+    <div class="os-col">
+      <div class="os-label mac">🍎 macOS</div>
+      <div style="background:white; border:1px solid var(--line); border-radius:0 8px 8px 8px; padding:18px;">
+        <ol style="margin:0; padding-left: 20px;">
+          <li><strong>⌘ + Space</strong> → "터미널" 입력 → Enter</li>
+          <li>또는 Launchpad → 기타 → 터미널</li>
+          <li>또는 Finder → 응용 프로그램 → 유틸리티 → 터미널.app</li>
+        </ol>
+        <p class="small muted" style="margin-top:10px;">기본 <span class="en">shell</span><span class="ko">(껍데기, 명령 입력 환경)</span>은 <code class="inline">zsh</code>.<br>화면에 <code class="inline">사용자@맥북-Pro ~ %</code> 가 보이면 성공.</p>
+      </div>
+    </div>
+
+    <div class="os-col">
+      <div class="os-label win">🪟 Windows</div>
+      <div style="background:white; border:1px solid var(--line); border-radius:0 8px 8px 8px; padding:18px;">
+        <ol style="margin:0; padding-left: 20px;">
+          <li><strong>⊞ Win + X</strong> → "터미널" 또는 "Windows PowerShell"</li>
+          <li>또는 시작 메뉴 → "Terminal" 입력</li>
+          <li>없으면 Microsoft Store에서 "Windows Terminal" 무료 설치</li>
+        </ol>
+        <p class="small muted" style="margin-top:10px;">기본 셸은 PowerShell.<br>화면에 <code class="inline">PS C:\Users\사용자&gt;</code> 가 보이면 성공.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #f9f1de; padding: 12px 16px; border-radius: 8px; margin-top: 14px; box-shadow: 0 0 0 1px #d9c485;">
+    <strong>📌 기억할 것:</strong> 어느 OS든 검은(또는 보라/파랑) 화면이 뜨고, 마우스 대신 키보드로 명령을 칩니다.
+  </div>
+  </section>
+
+<!-- Basic commands -->
+<section class="slide">
+  <span class="chapter-tag c1">Part 1 · 강의</span>
+  <h2>오늘 외워야 할 명령어는 단 5개</h2>
+
+  <table style="margin-top: 20px;">
+    <thead><tr><th style="width:120px;">명령</th><th>의미</th><th>예시</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">pwd</code></td><td>지금 어느 폴더에 있는지 출력 (print working directory)</td><td><code class="inline">pwd</code></td></tr>
+      <tr><td><code class="inline">ls</code></td><td>현재 폴더의 파일 목록 (Windows는 <code class="inline">dir</code>)</td><td><code class="inline">ls</code></td></tr>
+      <tr><td><code class="inline">cd</code></td><td>폴더 이동 (change directory)</td><td><code class="inline">cd Documents</code></td></tr>
+      <tr><td><code class="inline">mkdir</code></td><td>새 폴더 만들기</td><td><code class="inline">mkdir my-project</code></td></tr>
+      <tr><td><code class="inline">cd ..</code></td><td>상위 폴더로 가기</td><td><code class="inline">cd ..</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:24px;">한번 같이 해봅시다 (1분)</h3>
+  <div class="code-wrap">
+    <span class="lang">shell · 공통</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>cd ~                # 홈 폴더로 이동 (Windows: cd %USERPROFILE%)
+mkdir claude-training
+cd claude-training
+pwd                 # 위치 확인</pre>
+  </div>
+  <p class="small muted">💡 <code class="inline">~</code> 는 "내 홈 폴더" 약자입니다. macOS는 <code class="inline">/Users/이름/</code>, Windows PowerShell도 동일하게 <code class="inline">~</code> 사용 가능.</p>
+  </section>
+
+<!-- HANDS-ON 1 -->
+<section class="slide">
+  <div class="handson">
+    <span class="handson-tag">🟡 HANDS-ON 1 · 20분</span>
+    <h2>Claude Code 설치 &amp; 첫 실행</h2>
+    <p>각자 본인의 OS에 맞춰 설치합니다. 끝까지 가서 <code class="inline">claude</code> 명령을 실행하면 됩니다.</p>
+
+    <h3 style="margin-top: 16px;">✅ 완료 체크리스트</h3>
+    <ul class="check-list">
+      <li>터미널을 열었다</li>
+      <li><code class="inline">claude-training</code> 폴더를 만들었다</li>
+      <li><strong>🪟 Windows만:</strong> <code class="inline">node --version</code> 으로 Node.js 18+ 확인 (없으면 nodejs.org 에서 LTS 설치)</li>
+      <li>본인 OS에 맞는 설치 명령을 실행했다 (Mac은 curl 인스톨러, Windows는 <strong>npm</strong>)</li>
+      <li><code class="inline">claude --version</code> 으로 버전이 출력되었다</li>
+      <li><code class="inline">claude</code> 입력 → 로그인 화면이 떴다</li>
+      <li>로그인 완료 → 프롬프트 (<code class="inline">&gt;</code>) 가 보인다</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Windows Node.js prerequisite -->
+<section class="slide">
+  <span class="chapter-tag c1">Part 1 · 사전 준비</span>
+  <h2>🪟 Windows 사용자 — Node.js 먼저 설치</h2>
+  <p class="lead muted">사내 PC에서는 npm 방식이 가장 잘 됩니다. npm을 쓰려면 Node.js가 있어야 합니다.</p>
+
+  <div class="grid-2" style="margin-top: 20px;">
+    <div class="card">
+      <h4>1단계 — Node.js 설치 확인</h4>
+      <div class="code-wrap">
+        <span class="lang">powershell</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>node --version</pre>
+      </div>
+      <p>버전이 <strong>v18.x 이상</strong>이면 OK. 명령을 못 찾거나 낮은 버전이면 아래 단계로.</p>
+    </div>
+    <div class="card accent">
+      <h4>2단계 — 설치 (필요 시)</h4>
+      <ol>
+        <li><a href="https://nodejs.org" style="color:var(--terracotta);font-weight:600;">nodejs.org</a> 접속</li>
+        <li><strong>LTS</strong> 버전 (현재 v20 또는 v22) 다운로드</li>
+        <li>설치 마법사 → 기본값으로 Next · Next · Install</li>
+        <li><strong>새 터미널 창</strong>을 다시 열기 (중요!)</li>
+        <li>다시 <code class="inline">node --version</code> 으로 확인</li>
+      </ol>
+    </div>
+  </div>
+
+  <div style="background: #f9f1de; padding: 14px 18px; border-radius: 10px; margin-top: 16px; box-shadow: 0 0 0 1px #d9c485;">
+    <strong>🛟 사내 IT에 부탁할 수도 있어요</strong>
+    <p style="margin: 6px 0 0; font-size: 19px;">
+      회사에서 설치 권한이 막혀있으면 IT 헬프데스크에 "<em>Node.js LTS 설치 요청</em>"이라고 보내면 빠릅니다. Node.js는 사내에서 일반적으로 허용되는 도구입니다.
+    </p>
+  </div>
+
+  <div class="analogy">
+    <strong>건전지 비유</strong> — npm은 Node.js 안에 들어있는 "<strong>앱 스토어</strong>" 같은 도구입니다. Node.js라는 본체가 있어야 npm으로 앱(Claude Code)을 깔 수 있어요.
+  </div>
+</section>
+
+<!-- INSTALL Mac/Win side-by-side -->
+<section class="slide">
+  <span class="chapter-tag c1">Part 1 · 실습 가이드</span>
+  <h2>설치 — Mac과 Windows 명령어 병기</h2>
+  <p class="lead muted">본인 OS의 명령만 복사해서 터미널에 붙여넣으세요</p>
+
+  <div class="os-pair">
+    <div class="os-col">
+      <div class="os-label mac">🍎 macOS · Linux — 네이티브 인스톨러</div>
+      <div class="code-wrap">
+        <span class="lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>curl -fsSL https://claude.ai/install.sh | bash</pre>
+      </div>
+      <p class="small muted" style="margin-top:8px;">설치 후 새 터미널 열기 (또는 <code class="inline">source ~/.zshrc</code>).</p>
+    </div>
+
+    <div class="os-col">
+      <div class="os-label win">🪟 Windows — <strong>npm 권장</strong> (사내 PC 검증)</div>
+      <div class="code-wrap">
+        <span class="lang">powershell · 또는 cmd</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>npm install -g @anthropic-ai/claude-code</pre>
+      </div>
+      <p class="small muted" style="margin-top:8px;">사전 필요: <strong>Node.js 18+ 설치</strong> · <a href="https://nodejs.org" style="color:var(--terracotta);">nodejs.org</a> 에서 LTS 버전. <strong>관리자 권한 불필요</strong>.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 18px;">설치 확인 — Mac/Windows 동일</h3>
+  <div class="code-wrap">
+    <span class="lang">shell · 공통</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>claude --version
+# 1.x.x 같은 버전 번호가 나오면 성공</pre>
+  </div>
+
+  <div style="background: #f7e7e0; border-left:5px solid var(--error-crimson); padding:14px 18px; border-radius:10px; margin-top: 16px; box-shadow: 0 0 0 1px #d99e85;">
+    <strong>🪟 Windows 사내 PC 안내</strong>
+    <p style="margin: 6px 0 0; font-size: 18px; line-height: 1.5;">
+      PowerShell 네이티브 인스톨러(<code class="inline">irm https://claude.ai/install.ps1 | iex</code>)는
+      많은 회사의 보안 정책 — <strong>실행 정책 차단·사내 프록시·SmartScreen</strong> — 으로 막힐 수 있습니다.
+      <strong>실제 사내 PC 테스트 결과 npm 방식이 안정적</strong>입니다. Node.js만 미리 깔려있으면 한 줄로 끝납니다.
+    </p>
+  </div>
+</section>
+
+<!-- LOGIN -->
+<section class="slide">
+  <span class="chapter-tag c1">Part 1 · 실습 가이드</span>
+  <h2>로그인 — 브라우저 <span class="en">OAuth</span><span class="ko">(브라우저로 로그인하는 표준 방식)</span></h2>
+
+  <div class="grid-2" style="margin-top: 20px;">
+    <div>
+      <h3>1. <code class="inline">claude</code> 입력</h3>
+      <div class="code-wrap">
+        <span class="lang">shell · 공통</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>cd ~/claude-training
+claude</pre>
+      </div>
+      <p>처음 실행하면 로그인 안내가 뜨고 브라우저가 자동으로 열립니다.</p>
+
+      <h3 style="margin-top: 16px;">2. 브라우저에서 Anthropic 계정 로그인</h3>
+      <p>이미 Claude.ai에 로그인되어 있다면 한 번 클릭으로 끝납니다.</p>
+
+      <h3 style="margin-top: 16px;">3. 터미널로 돌아오기</h3>
+      <p>인증 완료 메시지가 뜨고, 프롬프트(<code class="inline">&gt;</code>) 가 보입니다.</p>
+    </div>
+    <div class="card">
+      <h4>🛟 자주 발생하는 문제</h4>
+      <ul class="small">
+        <li><strong>브라우저가 안 열림</strong> → 안내된 URL을 직접 복사해서 브라우저에 붙여넣기</li>
+        <li><strong>"Pro 구독 필요"</strong> → 사내 IT에 계정 권한 요청 / 옆 분과 짝으로 진행</li>
+        <li><strong>회사 프록시 차단</strong> → IT에 <code class="inline">api.anthropic.com</code> 허용 요청</li>
+        <li><strong>다시 로그인하고 싶다</strong> → <code class="inline">claude logout</code> 후 재시도</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+<!-- BREAK -->
+<section class="slide">
+  <div class="divider" style="align-items: center; text-align: center;">
+    <div style="font-size: 80px;">☕</div>
+    <h1 style="font-size: 72px;">10 min Break</h1>
+    <p class="lead muted">물 마시고, 화장실 다녀오시고, 다음 챕터에서 만나요</p>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- PART 2 - DIVIDER -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c2">Part 2 · 35 min</span>
+    <h1>Claude Code<br><span style="color: var(--accent)">첫 사용</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">Plan mode와 권한 — 안전하게 일을 시키는 법</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">강의</div><div class="t">슬래시 커맨드 6개</div><div class="d">/init · /clear · /help · /model · /agents · /mcp</div></div>
+      <div class="item"><div class="n">강의 ⭐</div><div class="t">Plan mode</div><div class="d">계획만 보고 승인 후 실행 — Shift+Tab</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">권한 · 좋은 요청</div><div class="d">묻는 것/안 묻는 것 · 명확한 프롬프트</div></div>
+      <div class="item"><div class="n">🟡 실습 2</div><div class="t">매출 CSV → 보고서</div><div class="d">샘플 데이터 → weekly-report.md</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- The 6 essential slash commands -->
+<section class="slide">
+  <span class="chapter-tag c2">Part 2 · 강의</span>
+  <h2>오늘 기억할 슬래시 커맨드 6개</h2>
+  <p class="lead muted">Claude Code 안에서 <code class="inline">/</code> 를 입력하면 자동완성 메뉴가 뜹니다</p>
+
+  <table style="margin-top: 20px;">
+    <thead><tr><th style="width:140px;">명령</th><th>용도</th><th>언제 쓰나</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">/init</code></td><td>현재 폴더를 스캔해 <code class="inline">CLAUDE.md</code> 초안 생성</td><td>새 프로젝트에서 처음 한 번</td></tr>
+      <tr><td><code class="inline">/clear</code></td><td>대화 히스토리 초기화 (파일은 그대로)</td><td>새 작업 시작할 때</td></tr>
+      <tr><td><code class="inline">/help</code></td><td>사용 가능한 모든 명령 보기</td><td>까먹었을 때</td></tr>
+      <tr><td><code class="inline">/model</code></td><td>모델 변경 (Sonnet / Opus / Haiku)</td><td>비용/속도/품질 조정</td></tr>
+      <tr><td><code class="inline">/agents</code></td><td>서브에이전트 목록·생성</td><td>Part 4에서 본격적으로</td></tr>
+      <tr><td><code class="inline">/mcp</code></td><td>MCP 서버 상태 확인</td><td>Part 6에서 본격적으로</td></tr>
+    </tbody>
+  </table>
+
+  <div style="background: #f5f5f4; padding: 14px 18px; border-radius: 8px; margin-top: 20px;">
+    <strong>탈출:</strong> <code class="inline">/exit</code> 또는 <code class="inline">Ctrl+D</code>. 작업 중단은 <code class="inline">Esc</code> 또는 <code class="inline">Ctrl+C</code>.
+  </div>
+  </section>
+
+<!-- Plan mode -->
+<section class="slide">
+  <span class="chapter-tag c2">Part 2 · 강의 · ⭐ 핵심</span>
+  <h2>Plan mode — 안전벨트입니다</h2>
+  <p class="lead">계획만 보여주고 실행은 안 함. 검토 후 승인하면 그제서야 실행.</p>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card red">
+      <h4>❌ Plan mode 없이</h4>
+      <p>"이 코드 리팩터링 해줘" → 클로드가 바로 30개 파일을 수정 → 망함</p>
+    </div>
+    <div class="card green">
+      <h4>✅ Plan mode로</h4>
+      <p>"이 코드 리팩터링 해줘" → 클로드가 <strong>"이 파일들을 이렇게 바꾸려고 합니다"</strong> 계획 출력 → 검토 → 승인하면 실행</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 28px;">전환 방법</h3>
+  <div class="grid-2">
+    <div>
+      <p><strong>키보드:</strong> <code class="inline">Shift + Tab</code> 을 누르면 모드 <span class="ko">(작동 방식)</span> 가 순환됩니다.</p>
+      <ul>
+        <li><code class="inline">default</code><span class="ko">(기본)</span> — 매 도구 호출마다 묻기</li>
+        <li><code class="inline">plan</code><span class="ko">(계획만)</span> — 계획만 출력, 실행 X</li>
+        <li><code class="inline">acceptEdits</code><span class="ko">(편집 자동 승인)</span> — 파일 편집은 묻지 않고 진행</li>
+      </ul>
+    </div>
+    <div class="card accent">
+      <h4>권장 사용 패턴</h4>
+      <ol>
+        <li>큰 작업 시작 → <strong>plan</strong> <span class="ko">(계획 먼저)</span></li>
+        <li>계획 검토 후 → <strong>default</strong> 또는 <strong>acceptEdits</strong></li>
+        <li>위험한 작업 <span class="ko">(파일 삭제·이메일 전송 등)</span> 직전엔 다시 <strong>plan</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>안전벨트 비유</strong> — Plan mode는 차를 출발하기 전 안전벨트와 같습니다. 매번 매면 귀찮지만, 사고가 났을 때 후회하지 않게 해줍니다. 큰 작업·민감한 폴더 수정 전에는 무조건 plan으로 한 번 보고 가는 습관을 들이세요.
+  </div>
+</section>
+
+<!-- Permissions model -->
+<section class="slide">
+  <span class="chapter-tag c2">Part 2 · 강의</span>
+  <h2>권한 — 누가 무엇을 할 수 있는가</h2>
+  <p class="lead muted">Claude Code는 묻고 나서 실행합니다 (기본값)</p>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card">
+      <h4>매 요청마다 묻는 것들</h4>
+      <ul>
+        <li><strong>Bash</strong> — 임의 셸 명령 실행</li>
+        <li><strong>Edit / Write</strong> — 파일 수정·생성</li>
+        <li><strong>외부 도구 (MCP)</strong> — 외부 시스템 접근</li>
+      </ul>
+      <p class="small muted">"Yes / Yes, and don't ask again / No" 중 선택</p>
+    </div>
+    <div class="card">
+      <h4>묻지 않는 것들</h4>
+      <ul>
+        <li><strong>Read</strong> — 파일/디렉토리 읽기</li>
+        <li><strong>Glob / Grep</strong> — 파일 검색</li>
+      </ul>
+      <p class="small muted">읽기만 하는 작업은 안전하다고 본다</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px;">사전 허용 — <code class="inline">.claude/settings.json</code></h3>
+  <div class="code-wrap">
+    <span class="lang">json · .claude/settings.json</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit(reports/*.md)",
+      "Write(reports/*.md)"
+    ],
+    "deny": [
+      "Edit(data/*)",
+      "Write(data/*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}</pre>
+  </div>
+  <p class="small muted">
+    <code class="inline">allow</code>: reports/ 안에서는 자유롭게 작업 가능 ·
+    <code class="inline">deny</code>: 원본 data/ 폴더는 절대 수정 금지 + 위험한 셸 명령 차단.
+    <code class="inline">:*</code> 는 와일드카드 <span class="ko">(모두)</span>.
+  </p>
+
+  <div class="analogy">
+    <strong>사내 출입증 비유</strong> — 회사 출입증에 "본사 1~3층은 자유 출입, 임원실·서버실은 금지"가 새겨져 있는 것과 같습니다. 매번 경비실에 묻지 않아도 되고, 그렇다고 어디든 들어갈 수도 없어요.
+  </div>
+</section>
+
+<!-- First conversation - what to type -->
+<section class="slide">
+  <span class="chapter-tag c2">Part 2 · 강의</span>
+  <h2>좋은 요청 vs 모호한 요청</h2>
+
+  <div class="grid-2" style="margin-top: 20px;">
+    <div class="card red">
+      <h4>❌ 모호함</h4>
+      <p><em>"이 매출 데이터 좀 정리해줘"</em></p>
+      <ul class="small">
+        <li>어떤 파일? 어떤 시트?</li>
+        <li>"정리"의 기준이 무엇인가요?</li>
+        <li>요약본은 어떤 형식으로?</li>
+        <li>원본은 그대로 둘지 덮어쓸지?</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h4>✅ 명확함</h4>
+      <p><em>"<code class="inline">sales-week.csv</code> 를 읽어서 (1) 매출 상위 5개 제품, (2) 전주 대비 증감률, (3) 다음 주 액션 3가지를 <strong>weekly-report.md</strong> 파일로 만들어줘. 원본은 건드리지 말고, 모든 출력은 한국어로."</em></p>
+      <ul class="small">
+        <li>대상 파일 ✓ 보존 조건 ✓</li>
+        <li>구체적 결과물 ✓ 출력 형식 ✓</li>
+        <li>경계 (원본 보존, 언어) ✓</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="background: #faf2ee; padding:14px 18px; border-radius:8px; margin-top:20px; border-left:4px solid var(--terracotta);">
+    <strong>요청 템플릿 (외워두세요):</strong><br>
+    <code class="inline">[대상]</code> 의 <code class="inline">[조건]</code> 을 지키면서 <code class="inline">[작업]</code> 을 해줘.<br>
+    결과는 <code class="inline">[형식]</code> 으로 만들고, <code class="inline">[하지 말 것]</code> 은 하지 마.
+  </div>
+  </section>
+
+<!-- HANDS-ON 2 — business: weekly report from CSV -->
+<section class="slide">
+  <div class="handson">
+    <span class="handson-tag">🟡 HANDS-ON 2 · 20분</span>
+    <h2>첫 업무 — 매출 데이터로 주간 보고서 만들기</h2>
+    <p>Plan mode <span class="ko">(계획만 보여줌)</span> 로 검토 후 승인하면 실제로 보고서 파일이 생성됩니다.</p>
+
+    <h3 style="margin-top: 14px;">시나리오</h3>
+    <p>샘플 매출 CSV 데이터를 분석해서 임원 보고용 한 페이지 요약 <code class="inline">weekly-report.md</code> 를 만듭니다. 코드 한 줄 안 씁니다.</p>
+
+    <h3>✅ 완료 체크리스트</h3>
+    <ul class="check-list">
+      <li><code class="inline">cd ~/claude-training</code> → <code class="inline">mkdir weekly-report</code> → <code class="inline">cd weekly-report</code></li>
+      <li><code class="inline">claude</code> 실행</li>
+      <li>다음 슬라이드 샘플 CSV를 복사 → "이걸 <code class="inline">sales-week.csv</code> 파일로 만들어줘" 요청</li>
+      <li><code class="inline">Shift+Tab</code> 으로 <strong>plan</strong> <span class="ko">(계획만)</span> 모드 진입</li>
+      <li>그 다음 슬라이드의 분석 프롬프트를 붙여넣기</li>
+      <li>출력된 계획을 1분간 검토</li>
+      <li><code class="inline">Shift+Tab</code> 으로 <strong>acceptEdits</strong> <span class="ko">(편집 자동 승인)</span> 모드</li>
+      <li>"계획대로 진행해줘" → <code class="inline">weekly-report.md</code> 생성됨</li>
+      <li>생성된 파일을 메모장·VS Code·Typora 로 열어 결과 확인</li>
+    </ul>
+  </div>
+  </section>
+
+<!-- HANDS-ON 2 - sample CSV -->
+<section class="slide">
+  <span class="chapter-tag c2">Part 2 · 실습 데이터</span>
+  <h2>샘플 CSV — Claude에게 통째로 넘기세요</h2>
+
+  <div class="code-wrap">
+    <span class="lang">csv · sales-week.csv (이번 주 매출 가데이터)</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>제품명,카테고리,이번주매출,지난주매출,재고
+스마트워치 X,웨어러블,18500000,12000000,42
+무선이어폰 Pro,오디오,9800000,11500000,15
+블루투스 스피커,오디오,5200000,5400000,88
+스마트밴드,웨어러블,4100000,4600000,120
+보조배터리 10K,충전기,3800000,2900000,210
+USB-C 케이블,충전기,2100000,2300000,540
+키보드 메카닉,주변기기,7600000,3200000,33
+마우스 게이밍,주변기기,2700000,2800000,95
+모니터 27인치,디스플레이,15400000,8200000,12
+웹캠 4K,주변기기,1900000,2100000,67</pre>
+  </div>
+
+  <p class="small muted" style="margin-top: 10px;">💡 Claude에게 "이 데이터를 <code class="inline">sales-week.csv</code> 라는 파일로 만들어줘" 라고 위 내용을 그대로 붙여넣으면 됩니다. (실제 사내 데이터는 보안상 가데이터로 연습 후 적용)</p>
+  </section>
+
+<!-- HANDS-ON 2 - analysis prompt -->
+<section class="slide">
+  <span class="chapter-tag c2">Part 2 · 실습 가이드</span>
+  <h2>분석 프롬프트 — 그대로 붙여넣기</h2>
+
+  <div class="code-wrap">
+    <span class="lang">prompt · Claude Code (plan 모드 상태에서)</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>이 폴더의 sales-week.csv 를 분석해서
+임원 보고용 한 페이지 요약을 weekly-report.md 파일로 작성해줘.
+
+[포함할 것]
+  1. 이번 주 한 줄 총평 (전주 대비 증감 포함)
+  2. 매출 TOP 3 제품과 각각의 성장률 %
+  3. 매출이 가장 많이 떨어진 제품과 추정 원인 1~2가지
+  4. 재고 부족 경고 (재고 30개 미만인 제품)
+  5. 다음 주 액션 아이템 3가지
+
+[형식]
+  - 마크다운 (.md) 으로 작성, 표는 마크다운 표 사용
+  - 숫자는 천 단위 콤마 (예: 18,500,000원)
+  - 한국어, 임원이 30초에 읽을 수 있게 간결하게
+
+[하지 말 것]
+  - sales-week.csv 원본 수정 금지
+  - 다른 파일 생성 금지 (weekly-report.md 만)</pre>
+  </div>
+
+  <h3 style="margin-top: 12px;">기대하는 흐름</h3>
+  <ol>
+    <li>Claude가 "CSV 읽고, 분석하고, MD를 작성하겠다"는 계획을 출력</li>
+    <li>여러분이 검토 → <code class="inline">Shift+Tab</code> → acceptEdits → "진행해줘"</li>
+    <li><code class="inline">weekly-report.md</code> 생성됨 → 파일 열어 결과 보기</li>
+    <li>(보너스) "한 줄 총평을 더 임팩트 있게 다시 써줘" 같은 후속 요청으로 다듬기</li>
+  </ol>
+  </section>
+
+<!-- ============================================================== -->
+<!-- PART 3 - DIVIDER -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c3">Part 3 · 25 min</span>
+    <h1>메모리 —<br><span style="color: var(--accent)">CLAUDE.md</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">매번 같은 설명을 반복하지 않으려면</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">강의</div><div class="t">.md (마크다운) 빠른 정리</div><div class="d">AI가 좋아하는 텍스트 형식</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">CLAUDE.md 계층 · @import</div><div class="d">프로젝트 · 사용자 · 로컬</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">업무용 템플릿</div><div class="d">컨텍스트 · 규칙 · 톤 · 금기</div></div>
+      <div class="item"><div class="n">🟡 실습 3</div><div class="t">/init + # 단축 메모리</div><div class="d">내 보고서 폴더에 메모리 주입</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- What is Markdown (MD) -->
+<section class="slide">
+  <span class="chapter-tag c3">Part 3 · 사전 지식</span>
+  <h2>잠깐 — <code class="inline">.md</code> 가 뭔가요?</h2>
+  <p class="lead"><strong>마크다운</strong><span class="en">(Markdown)</span><span class="ko">의 약자. 메모장으로도 열리는 그냥 텍스트 파일입니다.</span></p>
+
+  <div class="grid-2" style="margin-top: 22px;">
+    <div>
+      <h3>왜 쓰나요?</h3>
+      <ul>
+        <li>일반 텍스트인데 <strong>제목·목록·강조·코드</strong>를 간단한 기호로 표시할 수 있음</li>
+        <li>Notion, GitHub, Slack 모두 자동으로 예쁘게 렌더링</li>
+        <li><strong>AI가 가장 좋아하는 형식</strong> — 구조가 분명해서 잘 이해함</li>
+        <li>파일 확장자는 <code class="inline">.md</code></li>
+      </ul>
+
+      <h3 style="margin-top:18px;">어디서 만들고 열까요?</h3>
+      <ul class="small">
+        <li><strong>맥</strong>: 텍스트 편집기, VS Code, Typora 등</li>
+        <li><strong>윈도우</strong>: 메모장, VS Code, Typora 등</li>
+        <li><strong>가장 쉬운 방법</strong>: Claude Code에게 "<code class="inline">CLAUDE.md</code> 파일을 만들어줘"라고 말하면 끝</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>문법은 5가지면 충분</h3>
+      <table style="font-size: 16px;">
+        <thead><tr><th>입력</th><th>의미</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inline"># 제목</code></td><td>큰 제목</td></tr>
+          <tr><td><code class="inline">## 제목</code></td><td>중간 제목</td></tr>
+          <tr><td><code class="inline">- 항목</code></td><td>글머리 기호 목록</td></tr>
+          <tr><td><code class="inline">**굵게**</code></td><td><strong>굵게</strong></td></tr>
+          <tr><td><code class="inline">`코드`</code></td><td><code class="inline">코드</code></td></tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top:14px;">예시</h4>
+      <div class="code-wrap">
+        <span class="lang">markdown · 예시.md</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre># 우리 팀 위클리
+
+## 이번 주 한 일
+- 보고서 초안 작성
+- **신규 고객 미팅** 3건
+
+## 다음 주 계획
+- 데이터 정리</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>한글·SMS 비유</strong> — SMS에 "**굵게**"라고 적으면 그냥 별표 두 개로 보이지만, 카톡·노션·깃허브는 자동으로 <strong>굵게</strong> 처리합니다. 마크다운은 <strong>"표시"와 "내용"을 동시에 적는 방법</strong>입니다. AI는 이 표시를 보고 구조를 이해해요.
+  </div>
+</section>
+
+<!-- Why CLAUDE.md -->
+<section class="slide">
+  <span class="chapter-tag c3">Part 3 · 강의</span>
+  <h2>왜 CLAUDE.md 가 필요한가</h2>
+  <p class="lead">매 대화마다 같은 컨텍스트를 반복 설명하는 게 비효율</p>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card red">
+      <h4>❌ 매번 이렇게 시작</h4>
+      <p class="small"><em>"우리는 Next.js 13 쓰고, Tailwind를 쓰고, 커밋 메시지는 영어로 하고, 테스트는 vitest로 하고…"</em></p>
+      <p class="small muted">→ 5번째 대화에 똑같이 또 설명</p>
+    </div>
+    <div class="card green">
+      <h4>✅ CLAUDE.md에 한 번만</h4>
+      <p class="small"><code class="inline">CLAUDE.md</code> 파일이 있으면, Claude Code가 모든 대화 시작 시 자동으로 읽어들임</p>
+      <p class="small muted">→ "사양 다 알아. 본론으로 가자"</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px;">CLAUDE.md 메모리 계층</h3>
+  <table>
+    <thead><tr><th>위치</th><th>범위</th><th>용도</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">./CLAUDE.md</code></td><td>현재 프로젝트</td><td>코드 컨벤션, 빌드 명령, 아키텍처 — 팀과 공유 (git 커밋)</td></tr>
+      <tr><td><code class="inline">./CLAUDE.local.md</code></td><td>프로젝트 + 로컬</td><td>나만의 메모 (.gitignore 권장)</td></tr>
+      <tr><td><code class="inline">~/.claude/CLAUDE.md</code></td><td>모든 프로젝트</td><td>"한국어로 답변" 같은 개인 선호</td></tr>
+    </tbody>
+  </table>
+  <p class="small muted">실행하는 폴더에서부터 상위 폴더로 올라가며 CLAUDE.md를 모두 찾아 합칩니다.</p>
+
+  <div class="analogy">
+    <strong>신입사원 온보딩 문서 비유</strong> — 새 직원이 출근할 때마다 같은 사내 규칙을 다시 설명하지 않죠. <strong>한 번 정리해 둔 매뉴얼</strong>을 줍니다. CLAUDE.md가 바로 그 매뉴얼이에요. 매 대화마다 Claude가 첫 출근하지만, 이 파일을 자동으로 읽고 시작합니다.
+  </div>
+</section>
+
+<!-- CLAUDE.md template - business focused -->
+<section class="slide">
+  <span class="chapter-tag c3">Part 3 · 강의</span>
+  <h2>CLAUDE.md 템플릿 (그대로 가져가세요)</h2>
+  <p class="lead muted">업무 용도 예시 — 마케팅·기획·운영 등 직군 누구나 응용 가능</p>
+
+  <div class="code-wrap">
+    <span class="lang">markdown · ./CLAUDE.md</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre># 프로젝트: 마케팅팀 위클리 리포트 작성 헬퍼
+
+## 컨텍스트
+- 회사: ○○컴퍼니 (B2C 전자제품 유통)
+- 팀: 마케팅 3명, 매주 월요일 오전 임원 보고
+- 데이터 위치: `./data/` 폴더 (CSV 파일들)
+- 산출물 위치: `./reports/` 폴더 (.md 파일로)
+
+## 작성 규칙
+- 모든 보고서는 마크다운(.md) 으로
+- 숫자는 천 단위 콤마 (18,500,000원)
+- 임원이 30초에 읽을 수 있게 → 결론 먼저, 디테일 나중
+- 영문 약어는 풀어 쓰기 (ROAS → 광고 투자 대비 매출)
+
+## 톤
+- 단정적이지 않게, "추정", "보임" 등으로 완곡하게
+- 부정적 결과도 회피하지 말고 명시
+- 액션 아이템은 반드시 동사형 (예: "재고 보충 요청")
+
+## 자주 쓰는 작업
+- 주간 매출 분석 → 보고서 생성
+- 캠페인 성과 요약
+- 회의록 → 액션 아이템 추출
+
+## 절대 하지 말 것
+- 원본 데이터 파일(`./data/*.csv`) 수정·삭제 금지
+- 외부 전송 (이메일, 슬랙, API) 금지 — 파일 생성까지만
+- 추측한 숫자를 단정형으로 쓰지 말 것
+
+## 응답 언어
+- 한국어로 답변
+
+## 참조 자료
+@docs/회사-톤앤매너.md
+@docs/임원-보고-템플릿.md</pre>
+  </div>
+
+  <p class="small muted" style="margin-top:12px;"><strong>@import:</strong> <code class="inline">@경로</code> 로 다른 파일을 끌어옴 <span class="ko">(최대 5단계 재귀)</span>. 회사 스타일 가이드를 별도 파일로 둘 때 유용.</p>
+  </section>
+
+<!-- # shortcut and /init -->
+<section class="slide">
+  <span class="chapter-tag c3">Part 3 · 강의</span>
+  <h2>CLAUDE.md를 빨리 만드는 2가지 방법</h2>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card accent">
+      <h4>방법 1: <code class="inline">/init</code></h4>
+      <p>현재 폴더를 스캔해서 <code class="inline">CLAUDE.md</code> 초안을 자동 생성. 기존 코드가 있는 프로젝트에 추천.</p>
+      <div class="code-wrap">
+        <span class="lang">claude</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>&gt; /init</pre>
+      </div>
+      <p class="small">→ Claude가 package.json, README, src/ 등을 읽고 적절한 CLAUDE.md 작성</p>
+    </div>
+    <div class="card accent">
+      <h4>방법 2: <code class="inline">#</code> 단축</h4>
+      <p>대화 중 <code class="inline">#</code> 으로 시작하면 그 내용이 CLAUDE.md 에 추가됨. 점진적으로 키울 때.</p>
+      <div class="code-wrap">
+        <span class="lang">claude</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>&gt; # 모든 비동기 함수는 async/await 사용. .then() 금지.
+&gt; # 응답은 한국어로.</pre>
+      </div>
+      <p class="small">→ 어느 CLAUDE.md(프로젝트/사용자/로컬)에 추가할지 묻고 저장</p>
+    </div>
+  </div>
+  </section>
+
+<!-- HANDS-ON 3 -->
+<section class="slide">
+  <div class="handson">
+    <span class="handson-tag">🟡 HANDS-ON 3 · 15분</span>
+    <h2>내 보고서 폴더에 CLAUDE.md 붙이기</h2>
+    <p>실습 2의 <code class="inline">weekly-report</code> 폴더에 메모리를 주입합니다. 이후 모든 요청에 자동으로 적용됩니다.</p>
+
+    <h3>✅ 완료 체크리스트</h3>
+    <ul class="check-list">
+      <li><code class="inline">cd ~/claude-training/weekly-report</code> 후 <code class="inline">claude</code></li>
+      <li><code class="inline">/init</code> 실행 → 폴더를 스캔해 <code class="inline">CLAUDE.md</code> 초안 자동 생성</li>
+      <li>생성된 CLAUDE.md 를 열어 앞 슬라이드 템플릿을 참고해 본인 업무에 맞게 수정 (편집기 또는 Claude에게 "이렇게 바꿔줘"라고 요청)</li>
+      <li><code class="inline">/clear</code> <span class="ko">(대화 초기화)</span> 로 새 세션 시작 → "이 폴더에서 내가 뭘 하는지 알려줘?" 질문 → CLAUDE.md 내용 기반으로 답하는지 확인</li>
+      <li>대화 중 <code class="inline">#</code> 으로 규칙 1개 추가 (예: <code class="inline"># 모든 보고서 제목 앞에 [WEEKLY] 태그</code>) → CLAUDE.md 가 자동으로 갱신되는지 확인</li>
+    </ul>
+
+    <h4 style="margin-top:12px;">CLAUDE.md 에 꼭 넣어볼 항목 (참고)</h4>
+    <ul class="small">
+      <li>이 폴더의 목적 1줄 (예: "주간 매출 보고서를 자동 생성")</li>
+      <li>출력 형식 규칙 (마크다운, 한국어, 천 단위 콤마 등)</li>
+      <li>"data/ 폴더의 원본 CSV는 절대 수정 금지" 같은 안전장치</li>
+      <li>임원 보고 톤 규칙 (단정 X, 추정 표현 사용)</li>
+    </ul>
+  </div>
+  </section>
+
+<!-- BREAK 2 -->
+<section class="slide">
+  <div class="divider" style="align-items: center; text-align: center;">
+    <div style="font-size: 96px;">🌿</div>
+    <h1 style="font-size: 88px;">10 min Break</h1>
+    <p class="lead muted">절반 왔습니다. 후반은 하네스의 진짜 재미.</p>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- PART 4 - SUBAGENTS -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c4">Part 4 · 30 min</span>
+    <h1>Subagents —<br><span style="color: var(--accent)">하네스의 손과 발</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">전문 역할을 분리해서 메인 컨텍스트를 가볍게</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">강의</div><div class="t">서브에이전트란</div><div class="d">"별도 컨텍스트로 도는 작은 클로드"</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">파일 구조</div><div class="d">.claude/agents/*.md · frontmatter</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">필드와 호출</div><div class="d">name · description · tools · model</div></div>
+      <div class="item"><div class="n">🟡 실습 4</div><div class="t">doc-reviewer 만들기</div><div class="d">내 보고서를 검수하는 전문 에이전트</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- What is a subagent -->
+<section class="slide">
+  <span class="chapter-tag c4">Part 4 · 강의</span>
+  <h2>서브에이전트가 뭐죠?</h2>
+  <p class="lead">특정 역할 전용의 "별도 컨텍스트로 도는 작은 클로드"</p>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card">
+      <h4>왜 분리하나</h4>
+      <ul>
+        <li><strong>컨텍스트 절약</strong> — 코드 리뷰의 100KB 출력이 메인 대화를 오염시키지 않음</li>
+        <li><strong>전문화</strong> — 각 역할에 맞는 시스템 프롬프트·도구 제한</li>
+        <li><strong>병렬화</strong> — 여러 서브에이전트를 동시에 돌릴 수 있음</li>
+        <li><strong>재사용</strong> — 한번 만들면 프로젝트·팀에서 계속 호출</li>
+      </ul>
+    </div>
+    <div class="card accent">
+      <h4>업무에서 흔히 만드는 예</h4>
+      <ul>
+        <li><code class="inline">doc-reviewer</code> — 문서를 검수해 톤·맞춤법·일관성 체크</li>
+        <li><code class="inline">data-validator</code> — CSV·엑셀의 이상치·중복·누락 확인</li>
+        <li><code class="inline">meeting-summarizer</code> — 회의록 → 결정사항·액션 추출</li>
+        <li><code class="inline">researcher</code> — 웹·사내 위키 검색만 전담</li>
+        <li><code class="inline">translator-ko-en</code> — 한↔영 번역 전문 (사내 톤 반영)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="background: #faf2ee; padding:12px 16px; border-radius:8px; margin-top:14px; border-left:4px solid var(--terracotta);">
+    <strong>3겹 동심원에서 위치:</strong> Safety &amp; Scale 의 <em>Subagent Orchestration</em>. 메인 에이전트가 일을 나눠 위임하는 외곽 구조.
+  </div>
+
+  <div class="analogy">
+    <strong>외주 전문가 비유</strong> — 회사에서 모든 일을 본인이 다 하면 머리가 폭발합니다. <strong>법무·세무·디자인은 외부 전문가</strong>에게 맡기듯, Claude도 코드 리뷰는 code-reviewer, 문서 검수는 doc-reviewer에게 위임합니다. 그들은 각자 별도 책상에서 일하고, 결과만 들고 와요.
+  </div>
+</section>
+
+<!-- Subagent file structure -->
+<section class="slide">
+  <span class="chapter-tag c4">Part 4 · 강의</span>
+  <h2>서브에이전트는 그냥 마크다운 파일입니다</h2>
+
+  <h3>위치</h3>
+  <table>
+    <thead><tr><th>경로</th><th>범위</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">.claude/agents/&lt;이름&gt;.md</code></td><td>프로젝트 (git 커밋해서 팀과 공유)</td></tr>
+      <tr><td><code class="inline">~/.claude/agents/&lt;이름&gt;.md</code></td><td>사용자 전체 프로젝트</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:20px;">파일 구조 — <span class="en">frontmatter</span><span class="ko">(메타 정보 머리글)</span> + 시스템 프롬프트</h3>
+  <div class="code-wrap">
+    <span class="lang">markdown · .claude/agents/doc-reviewer.md</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>---
+name: doc-reviewer
+description: 작성된 보고서·문서를 검수합니다. 새 문서(.md)가 생성·수정된 직후 자동으로 호출되어야 합니다.
+tools: Read, Glob, Grep
+model: sonnet
+---
+
+당신은 임원 보고용 문서를 검수하는 시니어 에디터입니다.
+
+다음 관점에서만 검수하세요:
+1. 톤 — 단정형 남발, 과장 표현, 비격식 표현
+2. 일관성 — 숫자 표기(천 단위 콤마), 용어 통일, 영문 약어 풀이
+3. 구조 — 결론 먼저인지, 임원이 30초에 읽을 수 있는 분량인지
+4. 사실 — 본문에서 인용하는 숫자가 원본 데이터와 일치하는지
+
+검수 결과는 다음 형식으로:
+- 🔴 반드시 수정: ...
+- 🟡 제안: ...
+- 🟢 잘된 점: ...
+
+문서를 직접 수정하지 마세요. 제안만 하세요.</pre>
+  </div>
+  <p class="small muted"><strong>설명(description)을 자세히 쓰는 것이 핵심입니다.</strong> Claude가 "언제 이 에이전트를 호출할지" 결정할 때 이 설명을 보고 판단합니다.</p>
+  </section>
+
+<!-- Frontmatter fields -->
+<section class="slide">
+  <span class="chapter-tag c4">Part 4 · 강의</span>
+  <h2>frontmatter 필드 정리</h2>
+
+  <table>
+    <thead><tr><th>필드 <span class="ko">(항목)</span></th><th>필수?</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code class="inline">name</code><span class="ko">(이름)</span></td>
+        <td>필수</td>
+        <td>슬러그 <span class="ko">(소문자-하이픈 형태)</span>. 호출 시 사용. 예: <code class="inline">doc-reviewer</code></td>
+      </tr>
+      <tr>
+        <td><code class="inline">description</code><span class="ko">(설명)</span></td>
+        <td>필수</td>
+        <td>언제 이 에이전트를 부를지. 자동 호출의 핵심.</td>
+      </tr>
+      <tr>
+        <td><code class="inline">tools</code><span class="ko">(도구 목록)</span></td>
+        <td>선택</td>
+        <td>콤마로 구분. 생략 시 모든 도구 상속. 예: <code class="inline">Read, Glob, Grep</code></td>
+      </tr>
+      <tr>
+        <td><code class="inline">model</code><span class="ko">(모델)</span></td>
+        <td>선택</td>
+        <td><code class="inline">sonnet</code> · <code class="inline">opus</code> · <code class="inline">haiku</code> · <code class="inline">inherit</code><span class="ko">(상속)</span></td>
+      </tr>
+      <tr>
+        <td><code class="inline">color</code><span class="ko">(색)</span></td>
+        <td>선택</td>
+        <td>화면에 표시될 색</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 20px;">호출 방식</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h4>① 자동 호출</h4>
+      <p class="small">Claude가 description을 보고 "이 작업엔 이 에이전트가 맞다"고 판단하면 자동으로 호출</p>
+      <p class="small muted">예: 코드 작성 직후 → code-reviewer 자동 발동</p>
+    </div>
+    <div class="card">
+      <h4>② 명시 호출</h4>
+      <p class="small">사용자가 직접 지정</p>
+      <div class="code-wrap" style="margin-top:8px;">
+        <span class="lang">claude</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>&gt; doc-reviewer 에이전트로 weekly-report.md 를 검수해줘</pre>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!-- HANDS-ON 4 — business: doc-reviewer -->
+<section class="slide">
+  <div class="handson">
+    <span class="handson-tag">🟡 HANDS-ON 4 · 18분</span>
+    <h2>내 첫 서브에이전트 — 문서 검수자</h2>
+    <p>실습 2에서 만든 <code class="inline">weekly-report.md</code> 를 검수하는 전문 에이전트를 만들어 봅니다.</p>
+
+    <h3>방법 A: Claude에게 부탁 (추천)</h3>
+    <div class="code-wrap">
+      <span class="lang">claude · weekly-report 폴더 안에서</span>
+      <button class="copy-btn" onclick="copyCode(this)">복사</button>
+      <pre>&gt; /agents</pre>
+    </div>
+    <p>→ 메뉴에서 "Create new agent" <span class="ko">(새 에이전트 만들기)</span> 선택 → 대화형으로 진행</p>
+
+    <h3>방법 B: 파일 직접 작성</h3>
+    <ol class="small">
+      <li>Mac: <code class="inline">mkdir -p .claude/agents</code></li>
+      <li>Windows: <code class="inline">mkdir .claude\agents</code> (없으면 두 단계로: <code class="inline">mkdir .claude</code> → <code class="inline">mkdir .claude\agents</code>)</li>
+      <li>앞 슬라이드의 doc-reviewer.md 내용을 <code class="inline">.claude/agents/doc-reviewer.md</code> 로 저장</li>
+    </ol>
+
+    <h3 style="margin-top:14px;">✅ 완료 체크리스트</h3>
+    <ul class="check-list">
+      <li><code class="inline">.claude/agents/doc-reviewer.md</code> 파일이 존재</li>
+      <li><code class="inline">/agents</code> 명령으로 목록에 표시됨</li>
+      <li><code class="inline">weekly-report.md</code> 를 "더 임원 친화적으로 다시 써줘"라고 요청해 한번 수정</li>
+      <li>이어서 "doc-reviewer 로 방금 수정한 weekly-report.md 검수해줘" 요청</li>
+      <li>검수 결과에 🔴/🟡/🟢 형식이 나오는지 확인</li>
+      <li>(보너스) 검수 피드백을 반영해 또 한 번 다듬어 보기</li>
+    </ul>
+  </div>
+  </section>
+
+<!-- ============================================================== -->
+<!-- PART 5 - SLASH COMMANDS & HOOKS -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c5">Part 5 · 30 min</span>
+    <h1>Custom Slash Commands<br><span style="color: var(--accent)">&amp; Hooks</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">반복 패턴을 명령 한 개로 / 자동 검증을 빌트인으로</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">강의</div><div class="t">/주간보고 만들기</div><div class="d">자주 쓰는 5단계를 명령 1개로</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">frontmatter · $ARGUMENTS</div><div class="d">argument-hint · allowed-tools · model</div></div>
+      <div class="item"><div class="n">강의 ⭐</div><div class="t">Hooks 4가지 이벤트</div><div class="d">Pre/PostToolUse · Stop · Notification</div></div>
+      <div class="item"><div class="n">🟡 실습 5</div><div class="t">/회의록정리 + 알림 훅</div><div class="d">사내 회의록 자동 정리 + 완료 알림</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Custom slash command intro -->
+<section class="slide">
+  <span class="chapter-tag c5">Part 5 · 강의</span>
+  <h2>Custom Slash Commands — 나만의 단축어</h2>
+  <p class="lead">자주 쓰는 프롬프트를 <code class="inline">/이름</code> 으로 호출</p>
+
+  <h3>위치</h3>
+  <table>
+    <thead><tr><th>경로</th><th>범위</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">.claude/commands/&lt;이름&gt;.md</code></td><td>프로젝트 (팀 공유)</td></tr>
+      <tr><td><code class="inline">~/.claude/commands/&lt;이름&gt;.md</code></td><td>사용자 (모든 프로젝트)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 16px;">예시 — <code class="inline">/주간보고</code> 명령 만들기</h3>
+  <div class="code-wrap">
+    <span class="lang">markdown · .claude/commands/주간보고.md</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>---
+description: data/ 의 이번 주 CSV 분석 → 임원 보고용 .md 생성
+argument-hint: "[특별 강조 사항 (선택)]"
+allowed-tools: Read, Glob, Write, Edit
+---
+
+다음 절차를 따르세요:
+
+1. `data/` 폴더에서 가장 최근의 CSV 파일을 찾아 읽기
+2. 매출 상위 3개 / 하락 1개 / 재고 부족 항목을 식별
+3. CLAUDE.md 의 톤·형식 규칙을 따라 마크다운 보고서 작성
+4. 산출물: `reports/weekly-YYYY-MM-DD.md` (오늘 날짜)
+5. 사용자가 강조해달라고 한 사항: $ARGUMENTS
+
+주의: 원본 CSV 절대 수정 금지. reports/ 폴더에만 새 파일 생성.</pre>
+  </div>
+  <p class="small muted">사용 예: <code class="inline">/주간보고</code> 또는 <code class="inline">/주간보고 신제품 출시 직후라 광고비 ROAS 강조</code></p>
+
+  <div class="analogy">
+    <strong>키보드 단축키 비유</strong> — Excel에서 Ctrl+Shift+L 누르면 필터가 한 번에 적용되듯, <code class="inline">/주간보고</code> 한 줄이 "데이터 읽기 → 분석 → 보고서 작성"이라는 5단계를 매번 동일하게 실행합니다. 같은 작업을 매주 3번 이상 한다면 이미 슬래시 명령으로 만들 후보.
+  </div>
+</section>
+
+<!-- Slash command details -->
+<section class="slide">
+  <span class="chapter-tag c5">Part 5 · 강의</span>
+  <h2>Slash Command frontmatter 정리</h2>
+
+  <table>
+    <thead><tr><th>필드</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">description</code><span class="ko">(설명)</span></td><td>슬래시 메뉴에 표시될 한 줄 설명</td></tr>
+      <tr><td><code class="inline">argument-hint</code><span class="ko">(인자 힌트)</span></td><td>인자 <span class="ko">(명령 뒤에 붙이는 추가 입력)</span> 자동완성 힌트. 예: <code class="inline">[특별 강조 사항]</code></td></tr>
+      <tr><td><code class="inline">allowed-tools</code><span class="ko">(허용 도구)</span></td><td>이 명령 안에서만 허용할 도구. 좁히면 안전.</td></tr>
+      <tr><td><code class="inline">model</code><span class="ko">(모델)</span></td><td>특정 모델 강제. 간단 작업은 <code class="inline">haiku</code><span class="ko">(빠르고 저렴)</span> 로 비용 절감</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 20px;">인자 사용법</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h4><code class="inline">$ARGUMENTS</code></h4>
+      <p class="small">사용자가 명령 뒤에 입력한 모든 텍스트</p>
+      <p class="small muted">예: <code class="inline">/주간보고 신제품 강조</code> → $ARGUMENTS = "신제품 강조"</p>
+    </div>
+    <div class="card">
+      <h4>네임스페이스 <span class="ko">(폴더로 분류)</span></h4>
+      <p class="small">하위 폴더로 그룹화 가능</p>
+      <p class="small muted">
+        <code class="inline">.claude/commands/보고서/주간.md</code> → <code class="inline">/보고서:주간</code><br>
+        <code class="inline">.claude/commands/이메일/사과.md</code> → <code class="inline">/이메일:사과</code>
+      </p>
+    </div>
+  </div>
+  </section>
+
+<!-- Hooks intro -->
+<section class="slide">
+  <span class="chapter-tag c5">Part 5 · 강의 · ⭐ 핵심</span>
+  <h2>Hooks — 자동 검증·알림의 빌트인</h2>
+  <p class="lead">Claude의 행동 전/후에 내가 정한 셸 명령이 자동 실행됩니다</p>
+
+  <div class="grid-3" style="margin-top: 24px;">
+    <div class="card blue">
+      <h4><code class="inline">PreToolUse</code><br><span class="ko small">(도구 사용 전)</span></h4>
+      <p class="small">도구 실행 <strong>직전</strong>. exit 2 <span class="ko">(종료 코드 2)</span> 면 차단.</p>
+      <p class="small muted">→ "원본 data/ 폴더 수정 시도 막기"</p>
+    </div>
+    <div class="card blue">
+      <h4><code class="inline">PostToolUse</code><br><span class="ko small">(도구 사용 후)</span></h4>
+      <p class="small">도구 실행 <strong>직후</strong>. 결과 후처리.</p>
+      <p class="small muted">→ "보고서 작성 후 자동으로 슬랙에 링크 전송"</p>
+    </div>
+    <div class="card blue">
+      <h4><code class="inline">Stop / Notification</code><br><span class="ko small">(종료 / 알림)</span></h4>
+      <p class="small">세션 종료·알림·프롬프트 제출 시점</p>
+      <p class="small muted">→ "긴 작업 끝나면 데스크탑 알림"</p>
+    </div>
+  </div>
+
+  <div style="background: #faf2ee; box-shadow: 0 0 0 1px var(--coral); padding:12px 16px; border-radius:8px; margin-top:14px;">
+    <strong>중요:</strong> 훅 명령은 자동 실행됩니다. <strong>당신이 입력해 둔 명령이 그대로 셸에서 실행</strong>되니, 신뢰할 수 있는 명령만 등록하세요.
+  </div>
+
+  <div class="analogy">
+    <strong>현관 도어락 비유</strong> — 도어락은 사람이 문을 열려고 할 때마다(이벤트) 자동으로 작동합니다. PreToolUse는 <strong>문을 열기 전 비밀번호 확인</strong>, PostToolUse는 <strong>문이 닫힌 후 자동 잠금</strong>. 매번 신경 안 써도 보안과 자동화가 같이 굴러갑니다.
+  </div>
+</section>
+
+<!-- Hooks JSON example -->
+<section class="slide">
+  <span class="chapter-tag c5">Part 5 · 강의</span>
+  <h2>Hooks 설정 — JSON 구조</h2>
+
+  <p>설정 파일: <code class="inline">.claude/settings.json</code> (팀 공유) 또는 <code class="inline">~/.claude/settings.json</code> (개인)</p>
+
+  <div class="code-wrap">
+    <span class="lang">json · .claude/settings.json (업무 친화 예시)</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | grep -q '^data/' &amp;&amp; { echo '원본 데이터 폴더는 수정 금지'; exit 2; } || exit 0"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs -I {} echo \"[$(date '+%H:%M:%S')] 생성: {}\" &gt;&gt; ~/.claude/activity.log"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+  </div>
+
+  <h3 style="margin-top: 14px;">동작 원리</h3>
+  <ul class="small">
+    <li><code class="inline">matcher</code> — 도구 이름 정규식<span class="ko">(패턴)</span>. 예: <code class="inline">"Edit|Write"</code>, <code class="inline">"Bash"</code>, <code class="inline">"mcp__github__*"</code></li>
+    <li>훅 명령은 <strong>표준 입력(stdin)으로 JSON</strong>을 받음: <code class="inline">{"tool_name": "...", "tool_input": {...}}</code></li>
+    <li><strong>종료 코드 2 <span class="en">(exit code 2)</span></strong> = 차단 (PreToolUse 한정). 그 외는 통과.</li>
+    <li>화면 출력<span class="en">(stdout/stderr)</span>은 사용자에게 그대로 표시됨</li>
+  </ul>
+  <p class="small muted">⚠️ <code class="inline">jq</code> <span class="ko">(JSON 처리 도구)</span> 가 없으면 — Mac: <code class="inline">brew install jq</code>, Windows: <code class="inline">winget install jqlang.jq</code> · 다음 슬라이드는 더 쉬운 알림 예제.</p>
+  </section>
+
+<!-- Hooks simple - side by side -->
+<section class="slide">
+  <span class="chapter-tag c5">Part 5 · 강의</span>
+  <h2>처음 만들어볼 훅 — 데스크탑 알림</h2>
+  <p class="lead">긴 작업이 끝나면 다른 일 하다가도 알 수 있게 (Mac/Windows 병기)</p>
+
+  <div class="os-pair">
+    <div class="os-col">
+      <div class="os-label mac">🍎 macOS — <code class="inline">~/.claude/settings.json</code></div>
+      <div class="code-wrap">
+        <span class="lang">json</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude가 작업을 끝냈어요\" with title \"Claude Code\" sound name \"Glass\"'"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+      </div>
+      <p class="small muted">macOS 기본 알림 + 사운드.</p>
+    </div>
+
+    <div class="os-col">
+      <div class="os-label win">🪟 Windows — <code class="inline">%USERPROFILE%\.claude\settings.json</code></div>
+      <div class="code-wrap">
+        <span class="lang">json</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"New-BurntToastNotification -Text 'Claude Code', '작업 완료'\""
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+      </div>
+      <p class="small muted">사전 1회: <code class="inline">Install-Module BurntToast -Scope CurrentUser</code> (없으면 풍선 알림 미사용도 OK).</p>
+    </div>
+  </div>
+
+  <div style="background: #f9f1de; padding: 10px 14px; border-radius: 8px; margin-top: 14px; box-shadow: 0 0 0 1px #d9c485;">
+    <strong>💡 알림이 안 떠도 괜찮습니다.</strong> 훅이 설정되었다는 것을 확인하는 것이 목표 — Slack 메시지 자동 발송, 작업 로그 파일 추가 등 응용은 무궁무진합니다.
+  </div>
+  </section>
+
+<!-- HANDS-ON 5 — business: meeting summary command + hook -->
+<section class="slide">
+  <div class="handson">
+    <span class="handson-tag">🟡 HANDS-ON 5 · 15분</span>
+    <h2>나만의 명령 1개 + 훅 1개</h2>
+    <p><code class="inline">weekly-report</code> 폴더에서 진행합니다.</p>
+
+    <h3>Part A — Slash Command (7분)</h3>
+    <ol class="small">
+      <li>Mac: <code class="inline">mkdir -p .claude/commands</code> / Windows: <code class="inline">mkdir .claude\commands</code></li>
+      <li><code class="inline">.claude/commands/회의록정리.md</code> 파일 생성:</li>
+    </ol>
+    <div class="code-wrap">
+      <span class="lang">markdown</span>
+      <button class="copy-btn" onclick="copyCode(this)">복사</button>
+      <pre>---
+description: 회의록 텍스트에서 결정사항·액션·담당자를 추출해 정리
+argument-hint: "[추가 지시 (예: 마케팅팀 관점)]"
+allowed-tools: Read, Write
+---
+
+내가 다음 메시지에 붙여넣을 회의록을 읽고, 아래 형식으로 정리해줘.
+
+## 회의 한 줄 요약
+(1-2문장)
+
+## 결정사항
+- (결정된 것만)
+
+## 액션 아이템
+| 담당자 | 할 일 | 마감 |
+|---|---|---|
+
+## 후속 논의 필요
+- (결론 안 난 항목)
+
+추가 지시: $ARGUMENTS
+한국어로, 사실만. 추측 금지.</pre>
+    </div>
+    <p class="small">→ 사용: <code class="inline">/회의록정리</code> 입력 → 회의록 텍스트를 이어서 붙여넣기</p>
+
+    <h3 style="margin-top:12px;">Part B — Hook (8분)</h3>
+    <ul class="check-list">
+      <li>앞 슬라이드의 알림 훅 <span class="ko">(작업 완료 시 데스크탑 알림)</span> 을 본인 OS 것으로 <code class="inline">~/.claude/settings.json</code> 에 저장</li>
+      <li>Claude에게 짧은 작업 요청 (예: "weekly-report.md 끝에 한 줄 추가해줘")</li>
+      <li>작업 종료 시 알림 뜨는지 확인 (안 떠도 OK — 다음 단계로 진행)</li>
+    </ul>
+  </div>
+  </section>
+
+<!-- ============================================================== -->
+<!-- PART 6 - MCP -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c6">Part 6 · 15 min</span>
+    <h1>MCP &amp; Agent Teams —<br><span style="color: var(--accent)">외부 연결과 팀 모드</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">Slack · Notion · Drive 와 연결 + 여러 Claude가 함께 일하는 법</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">강의</div><div class="t">MCP가 뭔가</div><div class="d">"AI를 위한 USB-C" — 표준 도구 연결</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">claude mcp add</div><div class="d">Filesystem · Slack · Notion 예시 (Mac/Win)</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">Agent Teams</div><div class="d">팀장 + 팀원 병렬 · Subagents와 차이</div></div>
+      <div class="item"><div class="n">강의</div><div class="t">활성화 + 사용법</div><div class="d">실험적 기능 · 단축키 · 제약</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- What is MCP -->
+<section class="slide">
+  <span class="chapter-tag c6">Part 6 · 강의</span>
+  <h2>MCP가 뭔가요?</h2>
+  <p class="lead">"AI를 위한 USB-C" — 표준화된 도구 연결 규격</p>
+
+  <div class="grid-2" style="margin-top: 24px;">
+    <div class="card">
+      <h4>없을 때</h4>
+      <p>"GitHub 이슈 보고 싶다" → Claude에게 GitHub API 사용법을 매번 알려주고, 토큰을 매번 넘기고, 응답 파싱도 매번…</p>
+    </div>
+    <div class="card accent">
+      <h4>MCP 서버 추가 시</h4>
+      <p>"GitHub 이슈 보여줘" → Claude가 <code class="inline">mcp__github__list_issues</code> 도구를 자동 호출 → 결과 받음</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 20px;">전송 방식 <span class="en">(Transport)</span><span class="ko">— 어떻게 연결하나</span></h3>
+  <table>
+    <thead><tr><th>타입</th><th>설명</th><th>예시</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">stdio</code><span class="ko">(표준 입출력)</span></td><td>내 컴퓨터에서 작은 프로그램으로 실행 (가장 흔함)</td><td>npm으로 설치된 서버</td></tr>
+      <tr><td><code class="inline">sse</code><span class="ko">(실시간 스트림)</span></td><td>서버에서 보낸 이벤트 — 실시간 연결</td><td>원격에서 호스팅하는 서버</td></tr>
+      <tr><td><code class="inline">http</code><span class="ko">(웹 요청)</span></td><td>일반적인 HTTP 요청 방식</td><td>REST API 기반 통합</td></tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <strong>USB-C 비유</strong> — 예전엔 노트북·휴대폰·카메라가 각자 다른 충전기를 썼습니다. USB-C가 표준이 되니 케이블 하나로 다 됩니다. MCP는 <strong>AI 도구의 USB-C</strong> — Slack·Notion·Drive·DB가 모두 같은 방식으로 Claude에 꽂힙니다.
+  </div>
+</section>
+
+<!-- MCP add command -->
+<section class="slide">
+  <span class="chapter-tag c6">Part 6 · 강의</span>
+  <h2>MCP 서버 추가 — <code class="inline">claude mcp add</code></h2>
+
+  <h3>기본 문법</h3>
+  <div class="code-wrap">
+    <span class="lang">shell · 터미널 (claude 밖에서)</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>claude mcp add [옵션] &lt;이름&gt; -- &lt;명령&gt; &lt;인자&gt;...</pre>
+  </div>
+  <p class="small muted"><strong><code class="inline">--</code> 가 중요!</strong> Claude의 옵션과 서버 실행 명령을 구분합니다.</p>
+
+  <h3 style="margin-top: 14px;">업무에서 가장 유용한 3가지 예시</h3>
+
+  <p><strong>1. Filesystem <span class="ko">(내 컴퓨터 특정 폴더 안전 접근)</span></strong> — 사내 보고서 폴더를 통째로 클로드가 읽도록</p>
+  <div class="code-wrap">
+    <span class="lang">shell</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem ~/Documents/reports</pre>
+  </div>
+
+  <p style="margin-top:10px;"><strong>2. Slack <span class="ko">(채널 검색·메시지 조회)</span></strong> — "이번 주 #marketing 채널 주요 논의 정리해줘"</p>
+  <div class="code-wrap">
+    <span class="lang">shell</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>claude mcp add slack --env SLACK_BOT_TOKEN=&lt;xoxb-...&gt; \
+  -- npx -y @modelcontextprotocol/server-slack</pre>
+  </div>
+
+  <p style="margin-top:10px;"><strong>3. Notion <span class="ko">(사내 위키 검색)</span></strong> — "지난 분기 OKR 문서 찾아서 요약해줘"</p>
+  <div class="code-wrap">
+    <span class="lang">shell</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>claude mcp add notion --env NOTION_TOKEN=&lt;secret_...&gt; \
+  -- npx -y @notionhq/notion-mcp-server</pre>
+  </div>
+  <p class="small muted" style="margin-top:8px;">⚠️ <strong>토큰은 환경 변수로</strong> — settings.json 에 직접 적으면 git 커밋 시 유출 위험. <code class="inline">--env</code> 옵션 사용.</p>
+  </section>
+
+<!-- MCP — filesystem example side by side -->
+<section class="slide">
+  <span class="chapter-tag c6">Part 6 · 강의</span>
+  <h2>실전 — Filesystem MCP 추가 (Mac/Windows 병기)</h2>
+  <p class="lead muted">내 컴퓨터의 특정 폴더만 Claude가 안전하게 접근하도록 열어주는 예시</p>
+
+  <div class="os-pair">
+    <div class="os-col">
+      <div class="os-label mac">🍎 macOS · Linux</div>
+      <div class="code-wrap">
+        <span class="lang">shell</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>claude mcp add filesystem \
+  -- npx -y @modelcontextprotocol/server-filesystem ~/Documents</pre>
+      </div>
+    </div>
+
+    <div class="os-col">
+      <div class="os-label win">🪟 Windows (PowerShell)</div>
+      <div class="code-wrap">
+        <span class="lang">powershell</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>claude mcp add filesystem --transport stdio `
+  -- cmd /c npx -y @modelcontextprotocol/server-filesystem `
+  $env:USERPROFILE\Documents</pre>
+      </div>
+      <p class="small muted" style="margin-top:6px;">Windows는 <code class="inline">cmd /c</code> 래퍼 <span class="ko">(npx 실행 보조)</span> 필요할 수 있음.</p>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 18px;">
+    <div>
+      <h3>확인 — 공통</h3>
+      <div class="code-wrap">
+        <span class="lang">claude · /mcp 명령</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>&gt; /mcp</pre>
+      </div>
+      <p class="small">서버 상태 <span class="en">(Connected / Failed)</span><span class="ko">(연결됨 / 실패)</span> 와 제공 도구 목록 확인.</p>
+    </div>
+    <div>
+      <h3>제거 — 공통</h3>
+      <div class="code-wrap">
+        <span class="lang">shell</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>claude mcp remove filesystem</pre>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #faf2ee; padding:12px 16px; border-radius:8px; margin-top:14px; border-left:4px solid var(--terracotta);">
+    <strong>오늘은 시연만:</strong> 토큰이 필요한 서버<span class="ko">(GitHub, Slack 등)</span>는 사내 IT와 협의 후 부서별로 적용해보세요.
+  </div>
+  </section>
+
+<!-- ============================================================== -->
+<!-- PART 6.5 - AGENT TEAMS (Claude Code 팀 모드) -->
+<!-- ============================================================== -->
+<section class="slide">
+  <span class="chapter-tag c6">팀 모드 · Agent Teams</span>
+  <h2>Agent Teams — 여러 Claude가 한 팀으로 일하는 모드</h2>
+  <p class="lead muted">2026년 2월 출시 · 실험적 기능 · v2.1.32 이상</p>
+
+  <div class="grid-2" style="margin-top: 14px;">
+    <div>
+      <h3>한 줄로</h3>
+      <p>한 세션이 <strong>팀장(Team Lead)</strong> 이 되고, 여러 Claude Code 인스턴스를 <strong>팀원(Teammates)</strong> 으로 띄워 <strong>병렬로</strong> 일을 시킵니다.</p>
+
+      <h3 style="margin-top: 14px;">기존 Subagents 와의 차이</h3>
+      <table>
+        <thead><tr><th></th><th>Subagents</th><th>Agent Teams</th></tr></thead>
+        <tbody>
+          <tr><td><strong>컨텍스트</strong></td><td>각자 별도</td><td>각자 별도 + 완전 독립</td></tr>
+          <tr><td><strong>소통</strong></td><td>부모에게만 보고</td><td>팀원끼리 직접 메시지</td></tr>
+          <tr><td><strong>조정</strong></td><td>메인이 다 관리</td><td>공유 작업 목록으로 자체 조정</td></tr>
+          <tr><td><strong>비용</strong></td><td>저렴 (결과만 요약 회신)</td><td>비쌈 (각자 풀세션)</td></tr>
+          <tr><td><strong>적합</strong></td><td>결과만 필요한 단일 작업</td><td>토론·협의가 필요한 복잡 작업</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card accent">
+      <h4>가장 강력한 활용 시나리오</h4>
+      <ul>
+        <li><strong>다각도 리뷰</strong> — "보안·성능·테스트 관점 각각 1명씩 코드 리뷰"</li>
+        <li><strong>경쟁 가설로 디버깅</strong> — 5명이 각자 다른 원인 가설을 동시에 검증, 서로 반박</li>
+        <li><strong>여러 모듈 동시 개발</strong> — 프론트·백·테스트를 한 명씩 맡아 충돌 없이</li>
+        <li><strong>리서치</strong> — UX·기술·반대 입장 3명이 동시에 탐색 후 종합</li>
+      </ul>
+      <p class="small muted" style="margin-top: 6px;">💡 권장 인원: <strong>3~5명</strong>. 더 많으면 조정 비용이 효익을 넘음.</p>
+      <p class="small muted">⚠️ 토큰 비용이 팀원 수에 비례. 일상 작업엔 과함.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>TF팀 vs 비서 비유</strong> — Subagent는 <strong>비서</strong>(시킨 일을 하고 결과만 보고). Agent Teams는 <strong>TF팀</strong>(여러 명이 서로 의견을 나누고 토론한 뒤 결론을 가져옴). 중요한 의사결정엔 TF가 낫고, 단순 처리엔 비서가 빠르고 쌉니다.
+  </div>
+</section>
+
+<!-- Agent Teams - how to enable & use -->
+<section class="slide">
+  <span class="chapter-tag c6">팀 모드 · 사용법</span>
+  <h2>활성화하고 첫 팀 띄우기</h2>
+
+  <h3>1단계 — 켜기 (기본은 꺼져 있음)</h3>
+  <div class="code-wrap">
+    <span class="lang">json · ~/.claude/settings.json</span>
+    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+    <pre>{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "teammateMode": "in-process"
+}</pre>
+  </div>
+  <p class="small muted">⚠️ <code class="inline">claude --version</code> 으로 <strong>v2.1.32 이상</strong>인지 먼저 확인. 낮으면 업데이트 필요.</p>
+
+  <div class="grid-2" style="margin-top: 14px;">
+    <div>
+      <h3>2단계 — 자연어로 팀 만들기</h3>
+      <div class="code-wrap">
+        <span class="lang">claude · 그냥 평소처럼 입력</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>이번 신제품 출시 보도자료를 검수하는
+팀을 만들어줘. 팀원 3명:
+- 1명: 마케팅 톤 관점
+- 1명: 법무·컴플라이언스 관점
+- 1명: 일반 독자 관점 (반대 입장)
+
+각자 검수 후 서로 의견을 교환하고
+최종 합의된 수정안을 가져와줘.</pre>
+      </div>
+    </div>
+
+    <div>
+      <h3>주요 단축키 (in-process 모드)</h3>
+      <table>
+        <thead><tr><th>키</th><th>동작</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inline">Shift + ↓</code></td><td>팀원 순환 (직접 메시지)</td></tr>
+          <tr><td><code class="inline">Enter</code></td><td>해당 팀원 화면 진입</td></tr>
+          <tr><td><code class="inline">Esc</code></td><td>현재 작업 중단</td></tr>
+          <tr><td><code class="inline">Ctrl + T</code></td><td>공유 작업 목록 토글</td></tr>
+        </tbody>
+      </table>
+      <h3 style="margin-top: 10px;">3단계 — 정리</h3>
+      <div class="code-wrap" style="margin-top:4px;">
+        <span class="lang">claude</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>&gt; 팀 정리해줘 (Clean up the team)</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 12px; gap: 12px;">
+    <div style="background: #f9f1de; padding: 10px 14px; border-radius: 8px; border-left: 4px solid var(--coral);">
+      <strong>🍎 macOS</strong> — 기본 in-process 모드는 모든 터미널에서 작동. 분할 화면 모드 원하면 <code class="inline">tmux</code> 또는 iTerm2 필요.
+    </div>
+    <div style="background: #f7e7e0; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #ef4444;">
+      <strong>🪟 Windows</strong> — Windows Terminal/VS Code에선 <strong>분할 화면 미지원</strong>. <code class="inline">in-process</code> 모드만 사용. 기능 자체는 동일.
+    </div>
+  </div>
+
+  <p class="small muted" style="margin-top: 8px;"><strong>제약:</strong> 실험 기능이라 <code class="inline">/resume</code> 으로 팀원 복구 안 됨 · 동시 1개 팀만 · 팀원이 또 팀을 못 만듦 · 팀장 변경 불가.</p>
+  </section>
+
+<!-- ============================================================== -->
+<!-- PART 7 - CLOSING -->
+<!-- ============================================================== -->
+<section class="slide">
+  <div class="divider">
+    <span class="chapter-tag c7">Part 7 · 20 min</span>
+    <h1>업무별 하네스 설계<br><span style="color: var(--accent)">&amp; 사내 적용 로드맵</span></h1>
+    <p class="lead muted" style="margin-top: 12px;">오늘 배운 것을 내 부서 업무에 어떻게 묶을 것인가</p>
+
+    <div class="mini-agenda">
+      <div class="item"><div class="n">통합 1</div><div class="t">업무 유형별 4분류</div><div class="d">/분석 · /문서 · /소통 · /개발</div></div>
+      <div class="item"><div class="n">통합 2</div><div class="t">피해야 할 안티패턴 4가지</div><div class="d">모호한 지시 · 추측 fallback ·</div></div>
+      <div class="item"><div class="n">통합 3</div><div class="t">5가지 원칙</div><div class="d">예측 가능성 · 오케스트레이션 ·</div></div>
+      <div class="item"><div class="n">실전</div><div class="t">30일 로드맵 + Q&amp;A</div><div class="d">주별 1개씩 — 사내 정착 시나리오</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Task-specific harness — corporate framing -->
+<section class="slide">
+  <span class="chapter-tag c7">Part 7 · 통합</span>
+  <h2>하네스는 업무 유형별로 다르게 설계해야 합니다</h2>
+  <p class="lead muted">같은 Claude Code 라도 무엇을 시키느냐에 따라 모델·도구·검증 방식이 달라집니다</p>
+
+  <table style="margin-top: 16px; font-size: 17px;">
+    <thead>
+      <tr>
+        <th></th>
+        <th style="background: #faf2ee;">/분석<br><span class="small">데이터 분석·리포트</span></th>
+        <th style="background: #faf2ee; box-shadow: 0 0 0 1px var(--coral);">/문서<br><span class="small">보고서·제안서</span></th>
+        <th style="background:#d1fae5;">/소통<br><span class="small">메일·회의록·공지</span></th>
+        <th style="background: #f5d9c4;">/개발<br><span class="small">코드·자동화</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>① 모델</strong></td>
+        <td>수치 다루기 정확한 모델 (Sonnet/Opus)</td>
+        <td>긴 글의 흐름·톤 잡는 모델 (Opus)</td>
+        <td>짧은 문장을 빠르게 다듬는 모델 (Haiku)</td>
+        <td>코드 수정에 강한 모델 (Sonnet/Opus)</td>
+      </tr>
+      <tr>
+        <td><strong>② 목표</strong></td>
+        <td>숫자 정확성 + 인사이트 도출</td>
+        <td>회사 톤·형식·길이 준수</td>
+        <td>핵심 명료 + 톤 일관성</td>
+        <td>안전 수정 + 테스트 통과</td>
+      </tr>
+      <tr>
+        <td><strong>③ 도구</strong></td>
+        <td>CSV·Excel 읽기, Notion·BI MCP</td>
+        <td>Drive/Docs MCP, 회사 템플릿</td>
+        <td>Slack/메일 MCP, 톤 가이드</td>
+        <td>Git, 이슈 트래커, 테스트 러너</td>
+      </tr>
+      <tr>
+        <td><strong>④ 루프</strong></td>
+        <td>일괄 분석 → 수치 검증 → 사람 승인</td>
+        <td>초안 → 검수 서브에이전트 → 최종안</td>
+        <td>후보 여러 개 → 사람이 선택</td>
+        <td>작게 수정 + 테스트 확인 반복</td>
+      </tr>
+      <tr>
+        <td><strong>⑤ 메모리 <span class="ko small">(CLAUDE.md)</span></strong></td>
+        <td>지표 정의, 보고 양식, 단위 규칙</td>
+        <td>회사 톤·로고·과거 보고서·용어집</td>
+        <td>회신 톤·존칭·서명 형식</td>
+        <td>코드 컨벤션, 빌드 명령, 리뷰 기준</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="background:#f5f5f4; padding:12px 16px; border-radius:8px; margin-top:14px;">
+    <strong>핵심:</strong> 4개를 한 폴더에 욱여넣지 마세요. <strong>업무 유형별로 폴더를 분리</strong>하고 각각의 <code class="inline">CLAUDE.md</code> · 서브에이전트 · 슬래시 명령을 따로 두면 Claude Code 안에서 표 한 칸씩 구현됩니다.
+  </div>
+  </section>
+
+<!-- Anti-patterns -->
+<section class="slide">
+  <span class="chapter-tag c7">Part 7 · 통합</span>
+  <h2>에이전트 사용 시 반드시 피해야 할 패턴</h2>
+  <p class="lead muted">모호한 지시는 작은 오류를 반복시키고 품질 부채를 키웁니다</p>
+
+  <div class="anti-grid" style="margin-top: 24px;">
+    <div class="anti">
+      <div class="anum">1</div>
+      <div>
+        <h4 style="margin:0;">모호한 지시 줄이기</h4>
+        <p class="small muted">"잘해줘"·"깔끔하게" 같은 추상적 지시는 매번 다른 결과를 만듭니다. CLAUDE.md에 형식·톤·길이·금기 규칙을 구체적으로 명시.</p>
+      </div>
+    </div>
+    <div class="anti">
+      <div class="anum">2</div>
+      <div>
+        <h4 style="margin:0;">불확실할 때 추측하지 못하게</h4>
+        <p class="small muted">데이터·근거가 부족하면 추정값을 단정형으로 쓰지 말고 사실대로 말하도록. "모르면 모른다고 답하라" 규칙을 명시.</p>
+      </div>
+    </div>
+    <div class="anti">
+      <div class="anum">3</div>
+      <div>
+        <h4 style="margin:0;">검증 없는 종료 막기</h4>
+        <p class="small muted">결과가 만족스러워 보여도 자동으로 검수 단계를 거치게. PostToolUse 훅이나 doc-reviewer 같은 서브에이전트로 강제.</p>
+      </div>
+    </div>
+    <div class="anti">
+      <div class="anum">4</div>
+      <div>
+        <h4 style="margin:0;">권한·범위 경계 명확히</h4>
+        <p class="small muted">수정 가능 폴더·금지 도구·승인이 필요한 지점을 사전에 정하기. <code class="inline">allowed-tools</code>, <code class="inline">settings.json</code> 의 <code class="inline">deny</code> 활용.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>신입 교육 비유</strong> — 신입에게 "<em>알아서 잘해봐</em>"라고만 하면 매번 다른 결과가 나옵니다. <strong>형식·기준·금기를 명문화</strong>하고, <strong>중간 점검</strong>하고, <strong>권한 범위</strong>를 정해주는 게 교육의 핵심 — Claude도 똑같습니다.
+  </div>
+</section>
+
+<!-- 5 principles -->
+<section class="slide">
+  <span class="chapter-tag c7">Part 7 · 통합</span>
+  <h2>업무에서 에이전트를 안정적으로 쓰기 위한 5가지 원칙</h2>
+  <p class="lead muted">부서·직군 불문하고 적용 가능한 일반 원칙</p>
+
+  <div style="display: grid; grid-template-columns: 60px 1fr; gap: 14px 20px; margin-top: 20px; align-items: start;">
+    <div style="background: var(--near-black); color:white; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">1</div>
+    <div><strong>필요한 업무를 모두 파악하세요</strong><br><span class="small muted">에이전트가 맡을 일과 사람이 승인할 일을 나누고 자동화하지 않을 범위까지 먼저 정하세요.</span></div>
+
+    <div style="background: var(--terracotta); color:white; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">2</div>
+    <div><strong>최대한 예측 가능하게 만드세요</strong><br><span class="small muted">입력 형식과 완료 기준을 고정하고 실패 처리 규칙까지 명확히 남기세요.</span></div>
+
+    <div style="background: var(--coral); color:white; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">3</div>
+    <div><strong>오케스트레이션은 하나로 통합하세요</strong><br><span class="small muted">도구와 모델이 여러 개로 나뉘더라도 작업 지시·상태·로그는 한 곳에서 관리하세요.</span></div>
+
+    <div style="background: #927049; color:white; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">4</div>
+    <div><strong>모델에 종속되지 않게 설계하세요</strong><br><span class="small muted">모델이 바뀌어도 목표와 도구는 유지하고 검증 루프가 같은 방식으로 돌게 하세요.</span></div>
+
+    <div style="background: #6b7a3f; color:white; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">5</div>
+    <div><strong>기본 인프라는 지속적으로 관리하세요</strong><br><span class="small muted">메모리·컨텍스트·권한·템플릿은 한번 만들고 끝내지 말고 계속 정리하세요.</span></div>
+  </div>
+
+  <div class="analogy">
+    <strong>제조 라인 비유</strong> — 한 번 잘 세팅한 공정이 매일 같은 품질의 제품을 뽑아냅니다. AI도 마찬가지 — 잘 설계된 하네스가 한 번이라도 굴러가면 매주 같은 품질의 결과를 만들어요. 비결은 <strong>변동성을 줄이고 예측 가능성을 높이는 것</strong>.
+  </div>
+</section>
+
+<!-- 30 day plan -->
+<section class="slide">
+  <span class="chapter-tag c7">Part 7 · 다음 단계</span>
+  <h2>내일부터 30일 — 사내 적용 로드맵</h2>
+
+  <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px 20px; margin-top: 20px;">
+    <div style="background: #faf2ee; box-shadow: 0 0 0 1px var(--coral); padding: 12px; border-radius: 8px; text-align:center;">
+      <div style="font-weight:800; color: var(--terracotta);">Week 1</div>
+    </div>
+    <div>
+      <strong>나의 일을 CLAUDE.md로</strong> — 본인 담당 프로젝트 1개에 CLAUDE.md 작성. <code class="inline">#</code>로 매일 1개씩 규칙 추가.
+    </div>
+
+    <div style="background: #faf2ee; padding: 12px; border-radius: 8px; text-align:center;">
+      <div style="font-weight:800; color:#1e40af;">Week 2</div>
+    </div>
+    <div>
+      <strong>반복 작업 → Slash Command</strong> — 매주 3번 이상 하는 작업 1개를 골라 <code class="inline">.claude/commands/</code> 에 작성.
+    </div>
+
+    <div style="background: #f1f3ea; padding: 12px; border-radius: 8px; text-align:center;">
+      <div style="font-weight:800; color: #6b7a3f;">Week 3</div>
+    </div>
+    <div>
+      <strong>전문 역할 → Subagent</strong> — 문서 검수자·데이터 검증자·회의록 정리자 중 하나를 subagent로 분리.
+    </div>
+
+    <div style="background: #f5d9c4; padding: 12px; border-radius: 8px; text-align:center;">
+      <div style="font-weight:800; color:#991b1b;">Week 4</div>
+    </div>
+    <div>
+      <strong>경계 + 자동화 → Hooks &amp; MCP</strong> — 위험 명령 차단 PreToolUse 훅 1개 + 업무 시스템 연결 MCP 1개.
+    </div>
+  </div>
+
+  <div style="background:white; border: 2px solid var(--accent); padding: 16px 20px; border-radius: 10px; margin-top: 24px;">
+    <strong>제안:</strong> 사내 <code class="inline">#claude-code-사용기</code> 슬랙 채널 개설 → 매주 자기 CLAUDE.md와 명령 1개씩 공유. 한 달이면 사내 공통 명령 라이브러리가 생깁니다.
+  </div>
+  </section>
+
+<!-- Reference card -->
+<section class="slide">
+  <span class="chapter-tag c7">Part 7 · 참고</span>
+  <h2>치트시트 — 한 페이지 요약</h2>
+
+  <div class="grid-2" style="margin-top:16px; gap: 16px;">
+    <div class="card">
+      <h4>설치</h4>
+      <div class="code-wrap" style="margin:6px 0;">
+        <span class="lang">mac · linux</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>curl -fsSL https://claude.ai/install.sh | bash</pre>
+      </div>
+      <div class="code-wrap" style="margin:6px 0;">
+        <span class="lang">windows · npm 권장</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>npm install -g @anthropic-ai/claude-code</pre>
+      </div>
+      <p class="small muted" style="margin-top: 6px;">Windows: Node.js 18+ 사전 설치 (nodejs.org LTS). 사내망에서 PowerShell 인스톨러가 막히면 npm 사용.</p>
+    </div>
+    <div class="card">
+      <h4>슬래시 커맨드</h4>
+      <p class="small"><code class="inline">/init</code> · <code class="inline">/clear</code> · <code class="inline">/help</code> · <code class="inline">/model</code> · <code class="inline">/agents</code> · <code class="inline">/mcp</code></p>
+      <h4 style="margin-top:10px;">모드 전환</h4>
+      <p class="small"><code class="inline">Shift+Tab</code> — default ↔ plan ↔ acceptEdits</p>
+    </div>
+
+    <div class="card">
+      <h4>파일 위치</h4>
+      <table style="margin:0; font-size:13px;">
+        <tr><td><code class="inline">./CLAUDE.md</code></td><td>프로젝트 메모리</td></tr>
+        <tr><td><code class="inline">~/.claude/CLAUDE.md</code></td><td>사용자 메모리</td></tr>
+        <tr><td><code class="inline">.claude/agents/*.md</code></td><td>서브에이전트</td></tr>
+        <tr><td><code class="inline">.claude/commands/*.md</code></td><td>슬래시 커맨드</td></tr>
+        <tr><td><code class="inline">.claude/settings.json</code></td><td>훅·권한 설정</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>MCP</h4>
+      <div class="code-wrap" style="margin:6px 0;">
+        <span class="lang">shell</span>
+        <button class="copy-btn" onclick="copyCode(this)">복사</button>
+        <pre>claude mcp add &lt;이름&gt; -- &lt;명령&gt;
+claude mcp remove &lt;이름&gt;
+/mcp   # 상태 확인</pre>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!-- Resources -->
+<section class="slide">
+  <span class="chapter-tag c7">Part 7 · 참고</span>
+  <h2>더 깊이 파고 싶다면</h2>
+
+  <div class="grid-2" style="margin-top: 20px;">
+    <div class="card">
+      <h4>📚 공식 문서</h4>
+      <ul>
+        <li><a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">docs.claude.com/claude-code</a> — 모든 기능 레퍼런스</li>
+        <li><a href="https://docs.claude.com/en/docs/claude-code/sub-agents" target="_blank">Sub-agents</a></li>
+        <li><a href="https://docs.claude.com/en/docs/claude-code/hooks" target="_blank">Hooks</a></li>
+        <li><a href="https://docs.claude.com/en/docs/claude-code/mcp" target="_blank">MCP</a></li>
+        <li><a href="https://docs.claude.com/en/docs/claude-code/memory" target="_blank">Memory (CLAUDE.md)</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>🧪 업무 적용 실험 추천</h4>
+      <ul>
+        <li>주간/월간 보고서 → <code class="inline">/주간보고</code>·<code class="inline">/월간정리</code> 슬래시 명령</li>
+        <li>회의록 → <code class="inline">/회의록정리</code> + <code class="inline">meeting-summarizer</code> 서브에이전트</li>
+        <li>이메일 초안 → <code class="inline">/메일초안</code> (사내 톤 적용)</li>
+        <li>경쟁사 리서치 → <code class="inline">researcher</code> 서브에이전트 + Slack MCP</li>
+        <li>회사 위키 → 자체 MCP 서버 (다음 단계)</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+<!-- Final Q&A -->
+<section class="slide">
+  <span class="chapter-tag c7">Q &amp; A · 토의</span>
+  <h2>편하게 무엇이든 물어보세요</h2>
+  <p class="lead muted">막혔던 부분 · 우리 부서 적용 아이디어 · 다음 단계 — 정답이 없는 질문 환영</p>
+
+  <div class="grid-3" style="margin-top: 22px;">
+    <div class="card blue">
+      <h4>🛠 막힌 부분</h4>
+      <ul class="small">
+        <li>설치·로그인이 잘 안 됐어요</li>
+        <li>Plan mode 전환이 헷갈려요</li>
+        <li>Subagent가 자동 호출 안 돼요</li>
+        <li>훅 JSON 문법이 에러 나요</li>
+        <li>MCP 서버 연결이 안 돼요</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h4>💡 우리 부서 적용</h4>
+      <ul class="small">
+        <li>매주 반복하는 보고서를 어떻게?</li>
+        <li>회의록·이메일 톤을 어떻게 통일?</li>
+        <li>데이터 검증을 자동으로 할 수 있나?</li>
+        <li>보안상 민감 데이터는 어떻게 다룰까?</li>
+        <li>팀 동료들과 어떻게 공유하지?</li>
+      </ul>
+    </div>
+    <div class="card yellow">
+      <h4>🚀 다음 단계</h4>
+      <ul class="small">
+        <li>오늘 만든 CLAUDE.md / Subagent를 git에 커밋</li>
+        <li>30일 로드맵의 Week 1부터 시작</li>
+        <li>사내 슬랙 #claude-code-사용기 채널 합류</li>
+        <li>다음 달 사례 공유 모임 신청</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="background:white; border: 2px solid var(--accent); padding: 14px 18px; border-radius: 10px; margin-top: 18px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <strong style="font-size: 20px;">교육이 끝난 후에도 계속 이어집니다</strong>
+      <p style="margin: 4px 0 0; font-size: 16px; color: var(--olive-gray);">매주 1명씩 본인 CLAUDE.md·명령·서브에이전트를 공유 — 한 달이면 사내 공통 라이브러리</p>
+    </div>
+    <div style="background: var(--accent); color: white; padding: 10px 18px; border-radius: 999px; font-weight: 700;">#claude-code-사용기</div>
+  </div>
+</section>
+
+<!-- Thanks -->
+<section class="slide">
+  <div class="cover">
+    <h1>오늘 4시간,<br>여러분의 하네스가 <span style="color:var(--terracotta);">시작되었습니다.</span></h1>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 48px;">
+      <div style="background: var(--ivory); padding: 20px 24px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-left: 4px solid var(--terracotta);">
+        <div style="font-size: 36px;">⚙️</div>
+        <div style="font-family: var(--font-serif); font-weight: 500; font-size: 22px; margin-top: 6px; color: var(--near-black);">Claude Code 설치·실행</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 6px; line-height: 1.45;">Mac/Win 어디서든 터미널에서 한 줄로</div>
+      </div>
+      <div style="background: var(--ivory); padding: 20px 24px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-left: 4px solid var(--terracotta);">
+        <div style="font-size: 36px;">🧭</div>
+        <div style="font-family: var(--font-serif); font-weight: 500; font-size: 22px; margin-top: 6px; color: var(--near-black);">Plan mode &amp; 권한</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 6px; line-height: 1.45;">검토 후 실행 · settings.json 으로 경계 설정</div>
+      </div>
+      <div style="background: var(--ivory); padding: 20px 24px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-left: 4px solid var(--coral);">
+        <div style="font-size: 36px;">🧠</div>
+        <div style="font-family: var(--font-serif); font-weight: 500; font-size: 22px; margin-top: 6px; color: var(--near-black);">CLAUDE.md 메모리</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 6px; line-height: 1.45;">반복 설명 끝 · 프로젝트 컨텍스트를 영구화</div>
+      </div>
+      <div style="background: var(--ivory); padding: 20px 24px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-left: 4px solid var(--coral);">
+        <div style="font-size: 36px;">🤝</div>
+        <div style="font-family: var(--font-serif); font-weight: 500; font-size: 22px; margin-top: 6px; color: var(--near-black);">Subagents</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 6px; line-height: 1.45;">문서 검수자 · 데이터 검증자 등 전문 역할</div>
+      </div>
+      <div style="background: var(--ivory); padding: 20px 24px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-left: 4px solid #927049;">
+        <div style="font-size: 36px;">⚡</div>
+        <div style="font-family: var(--font-serif); font-weight: 500; font-size: 22px; margin-top: 6px; color: var(--near-black);">Slash 명령 + Hooks</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 6px; line-height: 1.45;">반복 패턴을 명령 1개로 · 자동 검증·알림</div>
+      </div>
+      <div style="background: var(--ivory); padding: 20px 24px; border-radius: 12px; box-shadow: 0 0 0 1px var(--border-cream); border-left: 4px solid var(--charcoal-warm);">
+        <div style="font-size: 36px;">🔌</div>
+        <div style="font-family: var(--font-serif); font-weight: 500; font-size: 22px; margin-top: 6px; color: var(--near-black);">MCP + Agent Teams</div>
+        <div style="font-size: 16px; color: var(--olive-gray); margin-top: 6px; line-height: 1.45;">Slack·Notion 등 외부 연결 · 여러 Claude 병렬</div>
+      </div>
+    </div>
+
+    <p class="lead" style="margin-top: 44px; text-align: center; font-size: 28px;">
+      매주 한 가지씩 늘려보세요. 한 달 뒤 우리는 <strong style="color: var(--terracotta);">모두 다른 모습</strong>일 겁니다.
+    </p>
+  </div>
+</section>
+
+</div> <!-- end deck -->
+
+<script>
+  const deck = document.getElementById('deck');
+  const slides = Array.from(deck.querySelectorAll('.slide'));
+  const counter = document.getElementById('slide-counter');
+  const pfill = document.getElementById('pfill');
+  let i = 0;
+
+  function render() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    counter.textContent = `${i + 1} / ${slides.length}`;
+    pfill.style.width = `${((i + 1) / slides.length) * 100}%`;
+    // Add slide number to current
+    const cur = slides[i];
+    if (cur && !cur.querySelector('.slide-num')) {
+      const sn = document.createElement('div');
+      sn.className = 'slide-num';
+      sn.textContent = `${i + 1} / ${slides.length}`;
+      cur.appendChild(sn);
+    }
+    // Update existing slide-num
+    slides.forEach((s, idx) => {
+      const sn = s.querySelector('.slide-num');
+      if (sn) sn.textContent = `${idx + 1} / ${slides.length}`;
+    });
+  }
+  function next() { if (i < slides.length - 1) { i++; render(); } }
+  function prev() { if (i > 0) { i--; render(); } }
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { i = 0; render(); }
+    else if (e.key === 'End') { i = slides.length - 1; render(); }
+  });
+
+  // Click to advance (but not on buttons/links/code)
+  deck.addEventListener('click', (e) => {
+    if (e.target.closest('button, a, pre, code, .copy-btn, .os-tab')) return;
+    next();
+  });
+
+  // OS tab switching - grouped
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('os-tab')) {
+      const group = e.target.dataset.osGroup;
+      const slide = e.target.closest('.slide');
+      slide.querySelectorAll(`.os-tab[data-os-group="${group}"]`).forEach(t => t.classList.remove('active'));
+      slide.querySelectorAll(`.os-panel[data-os-group="${group}"]`).forEach(p => p.classList.remove('active'));
+      e.target.classList.add('active');
+      const idx = Array.from(e.target.parentElement.querySelectorAll(`.os-tab[data-os-group="${group}"]`)).indexOf(e.target);
+      slide.querySelectorAll(`.os-panel[data-os-group="${group}"]`)[idx]?.classList.add('active');
+    }
+  });
+
+  // Copy code button
+  function copyCode(btn) {
+    const code = btn.parentElement.querySelector('pre').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.classList.add('copied');
+      btn.textContent = '✓ 복사됨';
+      setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '복사'; }, 1500);
+    });
+  }
+  window.copyCode = copyCode;
+  window.next = next;
+  window.prev = prev;
+
+  // Hash-based deep links: #s10 jumps to slide 10
+  function loadHash() {
+    const m = location.hash.match(/^#s(\d+)$/);
+    if (m) {
+      const idx = parseInt(m[1], 10) - 1;
+      if (idx >= 0 && idx < slides.length) { i = idx; render(); }
+    }
+  }
+  window.addEventListener('hashchange', loadHash);
+  loadHash();
+  render();
+
+  // Fit deck to viewport (PPT-style 16:9 scaling)
+  function fit() {
+    const topbarH = 36;
+    const margin = 16;
+    const w = window.innerWidth - margin * 2;
+    const h = window.innerHeight - topbarH - margin * 2;
+    const sx = w / 1600;
+    const sy = h / 900;
+    const s = Math.min(sx, sy);
+    deck.style.transform =
+      `translate(-50%, calc(-50% + ${topbarH / 2}px)) scale(${s})`;
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+  fit();
+</script>
+
+</body>
+</html>
