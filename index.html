@@ -118,11 +118,13 @@
     position: absolute; inset: 0;
     display: none;
     padding: 44px 64px;
-    overflow-x: hidden;
-    overflow-y: auto;          /* allow vertical scroll when content overflows */
+    overflow: auto;            /* allow scroll when content overflows */
+    overscroll-behavior: contain;
     animation: fadeIn 0.3s ease;
   }
   .slide.active { display: flex; flex-direction: column; }
+  /* Prevent flex children from being shrunk — lets overflow trigger naturally */
+  .slide.active > * { flex-shrink: 0; }
   /* Cover/divider use centered layout — no scroll */
   .slide:has(.cover),
   .slide:has(.divider) { overflow: hidden; }
