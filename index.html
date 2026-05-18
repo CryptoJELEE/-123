@@ -117,18 +117,18 @@
   .slide {
     position: absolute; inset: 0;
     display: none;
-    padding: 40px 56px 130px;
+    padding: 36px 56px 112px;
     overflow: hidden;
     animation: fadeIn 0.3s ease;
   }
-  /* Cover/divider/break/thanks have no footnotes — restore normal padding */
+  /* Slides without footnotes get normal bottom padding */
+  .slide:not(:has(.footnotes)) {
+    padding: 36px 56px 40px;
+  }
+  /* Cover/divider use centered layout — keep small symmetric padding */
   .slide:has(.cover),
   .slide:has(.divider) {
-    padding: 44px 56px;
-  }
-  /* Slides without footnotes shouldn't have the extra bottom space */
-  .slide:not(:has(.footnotes)) {
-    padding: 44px 56px;
+    padding: 36px 56px;
   }
   .slide.active { display: block; }
   @keyframes fadeIn {
@@ -136,42 +136,43 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Typography — Claude system, scaled up for projector */
+  /* Typography — Claude system, scaled for 16:9 with footnotes */
   h1, h2, h3 {
     font-family: var(--font-serif);
     font-weight: 500;
     letter-spacing: -0.005em;
     color: var(--near-black);
   }
-  h1 { font-size: 72px; line-height: 1.08; margin: 0 0 18px; }
-  h2 { font-size: 52px; line-height: 1.14; margin: 0 0 14px; }
-  h3 { font-size: 32px; line-height: 1.22; margin: 20px 0 10px; }
+  h1 { font-size: 64px; line-height: 1.08; margin: 0 0 14px; }
+  h2 { font-size: 42px; line-height: 1.14; margin: 0 0 10px; }
+  h3 { font-size: 26px; line-height: 1.22; margin: 14px 0 8px; }
   h4 {
     font-family: var(--font-sans);
-    font-size: 24px; line-height: 1.3; margin: 14px 0 8px;
+    font-size: 20px; line-height: 1.28; margin: 10px 0 6px;
     font-weight: 700; color: var(--near-black);
   }
   p, li {
-    font-size: 22px; line-height: 1.55;
+    font-size: 18px; line-height: 1.5;
     color: var(--charcoal-warm);
   }
   .lead {
-    font-size: 28px; color: var(--olive-gray); line-height: 1.45;
+    font-size: 22px; color: var(--olive-gray); line-height: 1.4;
     font-family: var(--font-sans); font-weight: 400;
+    margin: 0 0 12px;
   }
   .muted { color: var(--olive-gray); }
-  .small { font-size: 18px; color: var(--stone-gray); }
+  .small { font-size: 15px; color: var(--stone-gray); line-height: 1.45; }
 
   /* Chapter tag — all warm-toned, ring-shadowed */
   .chapter-tag {
     display: inline-block;
-    padding: 6px 18px;
+    padding: 4px 12px;
     border-radius: 999px;
     font-family: var(--font-sans);
-    font-size: 17px; font-weight: 600;
+    font-size: 12px; font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    margin-bottom: 26px;
+    margin-bottom: 14px;
     background: var(--ivory);
     color: var(--charcoal-warm);
     box-shadow: 0 0 0 1px var(--border-warm);
@@ -191,8 +192,8 @@
     display: flex; flex-direction: column; justify-content: center;
     height: 100%; width: 100%;
   }
-  .cover h1 { font-size: 80px; line-height: 1.05; }
-  .cover .meta { margin-top: 24px; color: var(--muted); font-size: 18px; }
+  .cover h1 { font-size: 66px; line-height: 1.05; }
+  .cover .meta { margin-top: 20px; color: var(--muted); font-size: 15px; }
 
   /* Layout helpers */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -203,10 +204,15 @@
   .card {
     background: var(--ivory);
     border-radius: 12px;
-    padding: 20px 24px;
+    padding: 14px 18px;
     box-shadow: 0 0 0 1px var(--border-cream);
     border: none;
   }
+  .card h4 { font-size: 18px; margin: 0 0 6px; }
+  .card p, .card li { font-size: 15px; line-height: 1.5; }
+  .card .small { font-size: 14px; }
+  .card ul { margin: 6px 0; padding-left: 20px; }
+  .card ul li { padding: 1px 0; }
   .card h4 { margin-top: 0; }
   .card.accent {
     box-shadow: 0 0 0 1px var(--terracotta), 0 4px 24px rgba(201,100,66,0.08);
@@ -230,17 +236,17 @@
 
   /* Code block — warm dark, soft ring shadow */
   .code-wrap {
-    position: relative; margin: 12px 0;
+    position: relative; margin: 10px 0;
     background: var(--near-black);
     color: var(--warm-silver);
     border-radius: 10px; overflow: hidden;
     font-family: var(--font-mono);
-    font-size: 18px;
+    font-size: 15px;
     box-shadow: 0 0 0 1px var(--dark-surface);
   }
   .code-wrap pre {
-    margin: 0; padding: 18px 22px; overflow: auto; line-height: 1.55;
-    white-space: pre; max-height: 580px;
+    margin: 0; padding: 14px 18px; overflow: auto; line-height: 1.5;
+    white-space: pre; max-height: 460px;
     color: #e8e6dc;
   }
   .code-wrap .lang {
@@ -310,11 +316,11 @@
   .analogy {
     background: var(--ivory);
     box-shadow: 0 0 0 1px var(--ring-warm);
-    border-left: 5px solid var(--coral);
-    padding: 16px 22px;
+    border-left: 4px solid var(--coral);
+    padding: 12px 18px;
     border-radius: 10px;
-    font-size: 20px; line-height: 1.55;
-    margin-top: 20px;
+    font-size: 16px; line-height: 1.5;
+    margin-top: 14px;
     color: var(--charcoal-warm);
     font-family: var(--font-sans);
   }
@@ -349,16 +355,17 @@
     border-radius: 999px; margin-bottom: 16px;
   }
   .handson h2, .handson h3 { color: var(--near-black); }
-  .check-list { padding-left: 0; list-style: none; margin: 14px 0; }
+  .check-list { padding-left: 0; list-style: none; margin: 10px 0; }
   .check-list li {
-    padding: 7px 0; padding-left: 36px; position: relative;
-    font-size: 20px;
+    padding: 4px 0; padding-left: 30px; position: relative;
+    font-size: 17px;
     color: var(--charcoal-warm);
   }
   .check-list li::before {
-    content: "□"; position: absolute; left: 0; font-size: 26px;
+    content: "□"; position: absolute; left: 0; font-size: 22px;
     color: var(--terracotta);
     font-weight: 700;
+    line-height: 1.2;
   }
 
   /* Concentric circles diagram */
@@ -384,19 +391,21 @@
   .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .phase {
     background: var(--ivory);
-    border-radius: 12px; padding: 24px 28px;
+    border-radius: 12px; padding: 16px 20px;
     box-shadow: 0 0 0 1px var(--border-cream);
   }
   .phase .ph-num {
     display: inline-block;
     background: var(--near-black); color: var(--ivory);
-    padding: 5px 14px; border-radius: 999px;
+    padding: 4px 12px; border-radius: 999px;
     font-family: var(--font-sans);
-    font-size: 17px; font-weight: 700;
+    font-size: 11px; font-weight: 700;
     letter-spacing: 0.08em;
   }
-  .phase .ph-year { float: right; color: var(--stone-gray); font-size: 17px; margin-top: 7px; }
-  .phase h3 { font-size: 34px; margin: 16px 0 10px; color: var(--near-black); }
+  .phase .ph-year { float: right; color: var(--stone-gray); font-size: 12px; margin-top: 6px; }
+  .phase h3 { font-size: 24px; margin: 10px 0 4px; color: var(--near-black); }
+  .phase p, .phase li { font-size: 14px; line-height: 1.45; }
+  .phase ul { margin: 6px 0 0; padding-left: 18px; }
   .phase.active {
     box-shadow: 0 0 0 2px var(--terracotta), 0 8px 32px rgba(201,100,66,0.12);
   }
@@ -414,19 +423,19 @@
 
   /* Tables — warm, editorial */
   table {
-    width: 100%; border-collapse: collapse; margin: 12px 0;
+    width: 100%; border-collapse: collapse; margin: 10px 0;
     background: var(--ivory); border-radius: 10px; overflow: hidden;
-    font-size: 19px;
+    font-size: 16px;
     box-shadow: 0 0 0 1px var(--border-cream);
   }
   th, td {
-    padding: 11px 18px; text-align: left;
+    padding: 8px 14px; text-align: left;
     border-bottom: 1px solid var(--border-cream);
   }
   th {
     background: var(--warm-sand);
     font-family: var(--font-sans);
-    font-weight: 600; font-size: 17px;
+    font-weight: 600; font-size: 14px;
     color: var(--charcoal-warm);
     letter-spacing: 0.02em;
   }
@@ -441,19 +450,19 @@
 
   /* Agenda table */
   .agenda-row {
-    display: grid; grid-template-columns: 90px 1fr 380px 110px 90px;
-    align-items: center; gap: 16px;
-    padding: 13px 22px; border-bottom: 1px solid var(--border-cream);
-    font-size: 20px;
+    display: grid; grid-template-columns: 80px 1fr 340px 100px 80px;
+    align-items: center; gap: 14px;
+    padding: 10px 20px; border-bottom: 1px solid var(--border-cream);
+    font-size: 17px;
     color: var(--charcoal-warm);
   }
   .agenda-row .pt {
     font-family: var(--font-serif);
     font-weight: 500;
     color: var(--terracotta);
-    font-size: 22px;
+    font-size: 19px;
   }
-  .agenda-row .tm { color: var(--stone-gray); font-variant-numeric: tabular-nums; text-align: right; font-size: 19px; }
+  .agenda-row .tm { color: var(--stone-gray); font-variant-numeric: tabular-nums; text-align: right; font-size: 16px; }
   .agenda-row .ty {
     text-align: center; font-size: 17px; padding: 4px 12px;
     border-radius: 999px; font-weight: 600;
@@ -463,9 +472,9 @@
   .agenda-row .ty.ex  { background: #faf2ee; color: var(--terracotta); box-shadow: 0 0 0 1px var(--coral); }
   .agenda-row .ty.br  { background: var(--warm-sand); color: var(--stone-gray); }
   .agenda-row .out {
-    font-size: 17px; color: var(--olive-gray);
+    font-size: 14px; color: var(--olive-gray);
     background: var(--parchment);
-    padding: 6px 14px; border-radius: 6px;
+    padding: 5px 12px; border-radius: 6px;
     box-shadow: 0 0 0 1px var(--border-cream);
   }
   .agenda-row .out.empty { background: transparent; }
@@ -481,55 +490,57 @@
   .anti-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .anti {
     background: var(--ivory);
-    padding: 18px 22px;
+    padding: 14px 18px;
     border-radius: 12px;
     box-shadow: 0 0 0 1px var(--border-cream);
     border-left: 4px solid var(--terracotta);
-    display: flex; align-items: center; gap: 18px;
+    display: flex; align-items: center; gap: 14px;
   }
   .anti .anum {
-    width: 36px; height: 36px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     background: var(--terracotta); color: var(--ivory);
     font-family: var(--font-serif);
-    font-weight: 500; font-size: 18px;
+    font-weight: 500; font-size: 16px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
+  .anti h4 { font-size: 17px; margin: 0; }
+  .anti .small { font-size: 13px; }
 
   /* Section divider slide — full width */
   .divider {
     display: flex; flex-direction: column; justify-content: center;
     height: 100%; width: 100%;
   }
-  .divider h1 { font-size: 88px; line-height: 1.05; }
+  .divider h1 { font-size: 72px; line-height: 1.05; }
 
   /* Mini agenda inside divider — full width */
   .mini-agenda {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
-    margin-top: 44px; width: 100%;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-top: 32px; width: 100%;
   }
   .mini-agenda .item {
     background: var(--ivory);
     border-radius: 12px;
-    padding: 20px 22px;
+    padding: 16px 18px;
     box-shadow: 0 0 0 1px var(--border-cream);
-    border-left: 4px solid var(--terracotta);
+    border-left: 3px solid var(--terracotta);
   }
   .mini-agenda .item .n {
     font-family: var(--font-sans);
-    font-size: 17px; font-weight: 700;
+    font-size: 12px; font-weight: 700;
     color: var(--terracotta);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
   .mini-agenda .item .t {
     font-family: var(--font-serif);
-    font-size: 22px; font-weight: 500;
-    margin-top: 8px;
+    font-size: 19px; font-weight: 500;
+    margin-top: 6px;
     color: var(--near-black);
     line-height: 1.22;
   }
   .mini-agenda .item .d {
-    font-size: 16px; color: var(--olive-gray);
+    font-size: 13px; color: var(--olive-gray);
     margin-top: 6px; line-height: 1.45;
   }
 
@@ -549,35 +560,39 @@
     }
   }
 
-  /* Slide number indicator */
+  /* Slide number indicator — placed above footnote band */
   .slide-num {
-    position: absolute; bottom: 14px; right: 28px;
-    font-size: 13px; color: var(--stone-gray); font-variant-numeric: tabular-nums;
+    position: absolute; bottom: 6px; right: 16px;
+    font-size: 11px; color: var(--stone-gray); font-variant-numeric: tabular-nums;
+    z-index: 2;
   }
 
-  /* Footnotes — glossary strip at slide bottom (compact) */
+  /* Footnotes — distinct band at slide bottom */
   .footnotes {
     position: absolute;
-    left: 56px; right: 110px;
-    bottom: 36px;
-    height: 76px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-cream);
+    left: 0; right: 0;
+    bottom: 0;
+    height: 100px;
+    padding: 14px 56px 14px 56px;
+    background: linear-gradient(to bottom, transparent, rgba(232, 230, 220, 0.4) 16px);
+    border-top: 1px solid var(--border-warm);
     font-family: var(--font-sans);
-    font-size: 14px; line-height: 1.45;
+    font-size: 13px; line-height: 1.45;
     color: var(--olive-gray);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4px 24px;
+    gap: 6px 28px;
     overflow: hidden;
   }
   .footnotes .fn {
     display: flex; align-items: baseline;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
   }
-  .footnotes .fn > * { overflow: hidden; text-overflow: ellipsis; }
+  .footnotes .fn-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .footnotes .fn-num {
     display: inline-flex; align-items: center; justify-content: center;
     flex-shrink: 0;
@@ -587,8 +602,9 @@
     font-size: 10px;
     width: 16px; height: 16px;
     border-radius: 50%;
-    margin-right: 6px;
+    margin-right: 7px;
     line-height: 1;
+    align-self: center;
   }
   .footnotes .fn-term {
     font-weight: 600;
@@ -698,10 +714,10 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span>Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Agent Teams</span>여러 Claude가 한 팀으로 동시에 일하는 모드 (실험적 기능)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span><span class="fn-text">Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Agent Teams</span><span class="fn-text">여러 Claude가 한 팀으로 동시에 일하는 모드 (실험적 기능)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
   </div>
 </section>
 
@@ -767,10 +783,10 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">컨텍스트</span>AI가 답을 만들 때 참고하는 배경 정보</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">하네스</span>AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Cursor</span>AI 코드 편집기 (VS Code + AI). Phase 2 도구.</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">컨텍스트</span><span class="fn-text">AI가 답을 만들 때 참고하는 배경 정보</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">하네스</span><span class="fn-text">AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Cursor</span><span class="fn-text">AI 코드 편집기 (VS Code + AI). Phase 2 도구.</span></span>
   </div>
 </section>
 
@@ -810,10 +826,10 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">LLM</span>대화 가능한 큰 AI 모델 (Claude·ChatGPT·Gemini 등)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">하네스</span>AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">LLM</span><span class="fn-text">대화 가능한 큰 AI 모델 (Claude·ChatGPT·Gemini 등)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">하네스</span><span class="fn-text">AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span></span>
   </div>
 </section>
 
@@ -861,9 +877,9 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">API</span>프로그램끼리 정보를 주고받는 약속된 통로</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">컨텍스트</span>AI가 답을 만들 때 참고하는 배경 정보</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">하네스</span>AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">API</span><span class="fn-text">프로그램끼리 정보를 주고받는 약속된 통로</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">컨텍스트</span><span class="fn-text">AI가 답을 만들 때 참고하는 배경 정보</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">하네스</span><span class="fn-text">AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span></span>
   </div>
 </section>
 
@@ -905,10 +921,10 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span>Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span><span class="fn-text">Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
   </div>
 </section>
 
@@ -947,10 +963,10 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span>Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span><span class="fn-text">Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
   </div>
 </section>
 
@@ -996,8 +1012,8 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">하네스</span>AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">하네스</span><span class="fn-text">AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span></span>
   </div>
 </section>
 
@@ -1030,10 +1046,10 @@
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span>Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span><span class="fn-text">Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
   </div>
 </section>
 
@@ -1114,9 +1130,9 @@
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">git</span>파일 변경 이력을 관리하는 도구 (협업의 기본)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">npm</span>Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">git</span><span class="fn-text">파일 변경 이력을 관리하는 도구 (협업의 기본)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">npm</span><span class="fn-text">Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span></span>
   </div>
 </section>
 
@@ -1157,10 +1173,10 @@
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PowerShell</span>Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">셸</span>터미널 안에서 명령을 받아 처리하는 프로그램 (zsh·bash·PowerShell 등)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">zsh</span>Mac에서 기본으로 쓰는 셸 종류</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PowerShell</span><span class="fn-text">Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">셸</span><span class="fn-text">터미널 안에서 명령을 받아 처리하는 프로그램 (zsh·bash·PowerShell 등)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">zsh</span><span class="fn-text">Mac에서 기본으로 쓰는 셸 종류</span></span>
   </div>
 </section>
 
@@ -1192,7 +1208,7 @@ pwd                 # 위치 확인</pre>
   <p class="small muted">💡 <code class="inline">~</code> 는 "내 홈 폴더" 약자입니다. macOS는 <code class="inline">/Users/이름/</code>, Windows PowerShell도 동일하게 <code class="inline">~</code> 사용 가능.</p>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PowerShell</span>Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PowerShell</span><span class="fn-text">Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span></span>
   </div>
 </section>
 
@@ -1216,10 +1232,10 @@ pwd                 # 위치 확인</pre>
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Node.js</span>JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npm</span>Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Node.js</span><span class="fn-text">JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npm</span><span class="fn-text">Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span></span>
   </div>
 </section>
 
@@ -1263,10 +1279,10 @@ pwd                 # 위치 확인</pre>
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Node.js</span>JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">npm</span>Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">LTS</span>Long-Term Support, 안정성이 검증된 장기 지원 버전</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Node.js</span><span class="fn-text">JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">npm</span><span class="fn-text">Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">LTS</span><span class="fn-text">Long-Term Support, 안정성이 검증된 장기 지원 버전</span></span>
   </div>
 </section>
 
@@ -1316,10 +1332,10 @@ pwd                 # 위치 확인</pre>
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Node.js</span>JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PowerShell</span>Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npm</span>Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Node.js</span><span class="fn-text">JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PowerShell</span><span class="fn-text">Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npm</span><span class="fn-text">Node.js로 만든 도구를 깔거나 관리하는 매니저 (앱스토어 같은)</span></span>
   </div>
 </section>
 
@@ -1357,9 +1373,9 @@ claude</pre>
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">OAuth</span>비밀번호 대신 "이미 로그인된 다른 계정으로 들어가기" 표준 (구글 로그인 같은 것)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">OAuth</span><span class="fn-text">비밀번호 대신 "이미 로그인된 다른 계정으로 들어가기" 표준 (구글 로그인 같은 것)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
   </div>
 </section>
 
@@ -1413,8 +1429,8 @@ claude</pre>
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
   </div>
 </section>
 
@@ -1460,8 +1476,8 @@ claude</pre>
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span>Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">acceptEdits</span>파일 편집을 매번 묻지 않고 자동 승인하는 모드</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span><span class="fn-text">Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">acceptEdits</span><span class="fn-text">파일 편집을 매번 묻지 않고 자동 승인하는 모드</span></span>
   </div>
 </section>
 
@@ -1524,10 +1540,10 @@ claude</pre>
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">셸</span>터미널 안에서 명령을 받아 처리하는 프로그램 (zsh·bash·PowerShell 등)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">curl</span>인터넷 주소에서 파일을 받아오는 명령</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Bash</span>셸 명령을 실행하는 Claude의 도구 (또는 Linux/Mac의 기본 셸)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">셸</span><span class="fn-text">터미널 안에서 명령을 받아 처리하는 프로그램 (zsh·bash·PowerShell 등)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">curl</span><span class="fn-text">인터넷 주소에서 파일을 받아오는 명령</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Bash</span><span class="fn-text">셸 명령을 실행하는 Claude의 도구 (또는 Linux/Mac의 기본 셸)</span></span>
   </div>
 </section>
 
@@ -1590,10 +1606,10 @@ claude</pre>
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span>Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">acceptEdits</span>파일 편집을 매번 묻지 않고 자동 승인하는 모드</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span>쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span><span class="fn-text">Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">acceptEdits</span><span class="fn-text">파일 편집을 매번 묻지 않고 자동 승인하는 모드</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span><span class="fn-text">쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
   </div>
 </section>
 
@@ -1621,7 +1637,7 @@ USB-C 케이블,충전기,2100000,2300000,540
   <p class="small muted" style="margin-top: 10px;">💡 Claude에게 "이 데이터를 <code class="inline">sales-week.csv</code> 라는 파일로 만들어줘" 라고 위 내용을 그대로 붙여넣으면 됩니다. (실제 사내 데이터는 보안상 가데이터로 연습 후 적용)</p>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CSV</span>쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CSV</span><span class="fn-text">쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span></span>
   </div>
 </section>
 
@@ -1662,10 +1678,10 @@ USB-C 케이블,충전기,2100000,2300000,540
   </ol>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">acceptEdits</span>파일 편집을 매번 묻지 않고 자동 승인하는 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">마크다운</span>기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span>쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">acceptEdits</span><span class="fn-text">파일 편집을 매번 묻지 않고 자동 승인하는 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">마크다운</span><span class="fn-text">기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span><span class="fn-text">쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
   </div>
 </section>
 
@@ -1745,10 +1761,10 @@ USB-C 케이블,충전기,2100000,2300000,540
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Markdown</span>기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">마크다운</span>기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">GitHub</span>git 저장소를 공유하는 인터넷 서비스</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Markdown</span><span class="fn-text">기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">마크다운</span><span class="fn-text">기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">GitHub</span><span class="fn-text">git 저장소를 공유하는 인터넷 서비스</span></span>
   </div>
 </section>
 
@@ -1787,9 +1803,9 @@ USB-C 케이블,충전기,2100000,2300000,540
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">git</span>파일 변경 이력을 관리하는 도구 (협업의 기본)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">컨텍스트</span>AI가 답을 만들 때 참고하는 배경 정보</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">git</span><span class="fn-text">파일 변경 이력을 관리하는 도구 (협업의 기본)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">컨텍스트</span><span class="fn-text">AI가 답을 만들 때 참고하는 배경 정보</span></span>
   </div>
 </section>
 
@@ -1842,10 +1858,10 @@ USB-C 케이블,충전기,2100000,2300000,540
   <p class="small muted" style="margin-top:12px;"><strong>@import:</strong> <code class="inline">@경로</code> 로 다른 파일을 끌어옴 <span class="ko">(최대 5단계 재귀)</span>. 회사 스타일 가이드를 별도 파일로 둘 때 유용.</p>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">@import</span>다른 .md 파일을 끌어와서 합쳐주는 표시</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">마크다운</span>기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">CSV</span>쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">@import</span><span class="fn-text">다른 .md 파일을 끌어와서 합쳐주는 표시</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">마크다운</span><span class="fn-text">기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">CSV</span><span class="fn-text">쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span></span>
   </div>
 </section>
 
@@ -1879,7 +1895,7 @@ USB-C 케이블,충전기,2100000,2300000,540
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
   </div>
 </section>
 
@@ -1909,9 +1925,9 @@ USB-C 케이블,충전기,2100000,2300000,540
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">마크다운</span>기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span>쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">마크다운</span><span class="fn-text">기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span><span class="fn-text">쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span></span>
   </div>
 </section>
 
@@ -1979,10 +1995,10 @@ USB-C 케이블,충전기,2100000,2300000,540
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">CSV</span>쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">컨텍스트</span>AI가 답을 만들 때 참고하는 배경 정보</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">CSV</span><span class="fn-text">쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">컨텍스트</span><span class="fn-text">AI가 답을 만들 때 참고하는 배경 정보</span></span>
   </div>
 </section>
 
@@ -2029,10 +2045,10 @@ model: sonnet
   <p class="small muted"><strong>설명(description)을 자세히 쓰는 것이 핵심입니다.</strong> Claude가 "언제 이 에이전트를 호출할지" 결정할 때 이 설명을 보고 판단합니다.</p>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">frontmatter</span>.md 파일 맨 위에 --- 사이에 적는 메타 정보 (이름·설명 등)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">마크다운</span>기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">git</span>파일 변경 이력을 관리하는 도구 (협업의 기본)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">프롬프트</span>AI에게 하는 한 마디 질문이나 지시문</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">frontmatter</span><span class="fn-text">.md 파일 맨 위에 --- 사이에 적는 메타 정보 (이름·설명 등)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">마크다운</span><span class="fn-text">기호 몇 개로 굵게·제목 등을 표시하는 텍스트 형식 (.md 파일)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">git</span><span class="fn-text">파일 변경 이력을 관리하는 도구 (협업의 기본)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">프롬프트</span><span class="fn-text">AI에게 하는 한 마디 질문이나 지시문</span></span>
   </div>
 </section>
 
@@ -2091,10 +2107,10 @@ model: sonnet
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">frontmatter</span>.md 파일 맨 위에 --- 사이에 적는 메타 정보 (이름·설명 등)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Read</span>파일을 읽는 Claude의 도구</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Glob</span>파일 이름 패턴으로 찾는 도구</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Grep</span>파일 안에서 텍스트를 검색하는 도구</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">frontmatter</span><span class="fn-text">.md 파일 맨 위에 --- 사이에 적는 메타 정보 (이름·설명 등)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Read</span><span class="fn-text">파일을 읽는 Claude의 도구</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Glob</span><span class="fn-text">파일 이름 패턴으로 찾는 도구</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Grep</span><span class="fn-text">파일 안에서 텍스트를 검색하는 도구</span></span>
   </div>
 </section>
 
@@ -2192,10 +2208,10 @@ allowed-tools: Read, Glob, Write, Edit
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">$ARGUMENTS</span>슬래시 명령 뒤에 사용자가 적은 텍스트가 들어가는 자리</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">allowed-tools</span>이 명령 안에서만 허용할 도구 목록</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">argument-hint</span>슬래시 명령 자동완성에 보여줄 인자 힌트</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">$ARGUMENTS</span><span class="fn-text">슬래시 명령 뒤에 사용자가 적은 텍스트가 들어가는 자리</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">allowed-tools</span><span class="fn-text">이 명령 안에서만 허용할 도구 목록</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">argument-hint</span><span class="fn-text">슬래시 명령 자동완성에 보여줄 인자 힌트</span></span>
   </div>
 </section>
 
@@ -2232,10 +2248,10 @@ allowed-tools: Read, Glob, Write, Edit
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">frontmatter</span>.md 파일 맨 위에 --- 사이에 적는 메타 정보 (이름·설명 등)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">$ARGUMENTS</span>슬래시 명령 뒤에 사용자가 적은 텍스트가 들어가는 자리</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">allowed-tools</span>이 명령 안에서만 허용할 도구 목록</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">argument-hint</span>슬래시 명령 자동완성에 보여줄 인자 힌트</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">frontmatter</span><span class="fn-text">.md 파일 맨 위에 --- 사이에 적는 메타 정보 (이름·설명 등)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">$ARGUMENTS</span><span class="fn-text">슬래시 명령 뒤에 사용자가 적은 텍스트가 들어가는 자리</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">allowed-tools</span><span class="fn-text">이 명령 안에서만 허용할 도구 목록</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">argument-hint</span><span class="fn-text">슬래시 명령 자동완성에 보여줄 인자 힌트</span></span>
   </div>
 </section>
 
@@ -2272,10 +2288,10 @@ allowed-tools: Read, Glob, Write, Edit
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PreToolUse</span>도구가 실행되기 "직전" 시점 (위험한 명령 차단 용도)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PostToolUse</span>도구가 실행된 "직후" 시점 (자동 검증·후처리 용도)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Notification</span>알림이 발생하는 시점 (작업 완료 알림 등)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Hooks</span>특정 사건이 벌어질 때 자동 실행되는 명령 (도어락처럼)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PreToolUse</span><span class="fn-text">도구가 실행되기 "직전" 시점 (위험한 명령 차단 용도)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PostToolUse</span><span class="fn-text">도구가 실행된 "직후" 시점 (자동 검증·후처리 용도)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Notification</span><span class="fn-text">알림이 발생하는 시점 (작업 완료 알림 등)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Hooks</span><span class="fn-text">특정 사건이 벌어질 때 자동 실행되는 명령 (도어락처럼)</span></span>
   </div>
 </section>
 
@@ -2327,10 +2343,10 @@ allowed-tools: Read, Glob, Write, Edit
   <p class="small muted">⚠️ <code class="inline">jq</code> <span class="ko">(JSON 처리 도구)</span> 가 없으면 — Mac: <code class="inline">brew install jq</code>, Windows: <code class="inline">winget install jqlang.jq</code> · 다음 슬라이드는 더 쉬운 알림 예제.</p>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PreToolUse</span>도구가 실행되기 "직전" 시점 (위험한 명령 차단 용도)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PostToolUse</span>도구가 실행된 "직후" 시점 (자동 검증·후처리 용도)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">JSON</span>컴퓨터가 읽기 쉬운 데이터 표기법 ({ "키": "값" } 형식)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Hooks</span>특정 사건이 벌어질 때 자동 실행되는 명령 (도어락처럼)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PreToolUse</span><span class="fn-text">도구가 실행되기 "직전" 시점 (위험한 명령 차단 용도)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PostToolUse</span><span class="fn-text">도구가 실행된 "직후" 시점 (자동 검증·후처리 용도)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">JSON</span><span class="fn-text">컴퓨터가 읽기 쉬운 데이터 표기법 ({ "키": "값" } 형식)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Hooks</span><span class="fn-text">특정 사건이 벌어질 때 자동 실행되는 명령 (도어락처럼)</span></span>
   </div>
 </section>
 
@@ -2395,10 +2411,10 @@ allowed-tools: Read, Glob, Write, Edit
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Notification</span>알림이 발생하는 시점 (작업 완료 알림 등)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">settings.json</span>Claude Code 설정을 모아둔 파일 (권한·훅 등)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">matcher</span>어떤 도구를 감시할지 정하는 패턴</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Slack</span>회사에서 많이 쓰는 메신저 (이메일 대체)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Notification</span><span class="fn-text">알림이 발생하는 시점 (작업 완료 알림 등)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">settings.json</span><span class="fn-text">Claude Code 설정을 모아둔 파일 (권한·훅 등)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">matcher</span><span class="fn-text">어떤 도구를 감시할지 정하는 패턴</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Slack</span><span class="fn-text">회사에서 많이 쓰는 메신저 (이메일 대체)</span></span>
   </div>
 </section>
 
@@ -2452,10 +2468,10 @@ allowed-tools: Read, Write
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">$ARGUMENTS</span>슬래시 명령 뒤에 사용자가 적은 텍스트가 들어가는 자리</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">allowed-tools</span>이 명령 안에서만 허용할 도구 목록</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">argument-hint</span>슬래시 명령 자동완성에 보여줄 인자 힌트</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Hook</span>특정 사건이 벌어질 때 자동 실행되는 명령</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">$ARGUMENTS</span><span class="fn-text">슬래시 명령 뒤에 사용자가 적은 텍스트가 들어가는 자리</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">allowed-tools</span><span class="fn-text">이 명령 안에서만 허용할 도구 목록</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">argument-hint</span><span class="fn-text">슬래시 명령 자동완성에 보여줄 인자 힌트</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Hook</span><span class="fn-text">특정 사건이 벌어질 때 자동 실행되는 명령</span></span>
   </div>
 </section>
 
@@ -2509,10 +2525,10 @@ allowed-tools: Read, Write
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">API</span>프로그램끼리 정보를 주고받는 약속된 통로</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">git</span>파일 변경 이력을 관리하는 도구 (협업의 기본)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">GitHub</span>git 저장소를 공유하는 인터넷 서비스</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">API</span><span class="fn-text">프로그램끼리 정보를 주고받는 약속된 통로</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">git</span><span class="fn-text">파일 변경 이력을 관리하는 도구 (협업의 기본)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">GitHub</span><span class="fn-text">git 저장소를 공유하는 인터넷 서비스</span></span>
   </div>
 </section>
 
@@ -2556,10 +2572,10 @@ allowed-tools: Read, Write
   <p class="small muted" style="margin-top:8px;">⚠️ <strong>토큰은 환경 변수로</strong> — settings.json 에 직접 적으면 git 커밋 시 유출 위험. <code class="inline">--env</code> 옵션 사용.</p>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">git</span>파일 변경 이력을 관리하는 도구 (협업의 기본)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npx</span>Node.js 도구를 설치 없이 한 번만 실행하는 명령</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">git</span><span class="fn-text">파일 변경 이력을 관리하는 도구 (협업의 기본)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npx</span><span class="fn-text">Node.js 도구를 설치 없이 한 번만 실행하는 명령</span></span>
   </div>
 </section>
 
@@ -2618,10 +2634,10 @@ allowed-tools: Read, Write
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PowerShell</span>Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">GitHub</span>git 저장소를 공유하는 인터넷 서비스</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npx</span>Node.js 도구를 설치 없이 한 번만 실행하는 명령</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">PowerShell</span><span class="fn-text">Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">GitHub</span><span class="fn-text">git 저장소를 공유하는 인터넷 서비스</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">npx</span><span class="fn-text">Node.js 도구를 설치 없이 한 번만 실행하는 명령</span></span>
   </div>
 </section>
 
@@ -2669,10 +2685,10 @@ allowed-tools: Read, Write
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Agent Teams</span>여러 Claude가 한 팀으로 동시에 일하는 모드 (실험적 기능)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">컨텍스트</span>AI가 답을 만들 때 참고하는 배경 정보</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">토큰</span>비밀번호 대신 쓰는 비밀 문자열 (API 인증용)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Agent Teams</span><span class="fn-text">여러 Claude가 한 팀으로 동시에 일하는 모드 (실험적 기능)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">컨텍스트</span><span class="fn-text">AI가 답을 만들 때 참고하는 배경 정보</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">토큰</span><span class="fn-text">비밀번호 대신 쓰는 비밀 문자열 (API 인증용)</span></span>
   </div>
 </section>
 
@@ -2743,10 +2759,10 @@ allowed-tools: Read, Write
   <p class="small muted" style="margin-top: 8px;"><strong>제약:</strong> 실험 기능이라 <code class="inline">/resume</code> 으로 팀원 복구 안 됨 · 동시 1개 팀만 · 팀원이 또 팀을 못 만듦 · 팀장 변경 불가.</p>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">터미널</span>마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">tmux</span>터미널 화면을 여러 칸으로 쪼개 동시에 보여주는 도구</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">iTerm2</span>Mac의 더 강력한 터미널 앱 (기본 터미널의 대체)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">settings.json</span>Claude Code 설정을 모아둔 파일 (권한·훅 등)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">터미널</span><span class="fn-text">마우스 대신 키보드 명령으로 컴퓨터를 다루는 검은 창</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">tmux</span><span class="fn-text">터미널 화면을 여러 칸으로 쪼개 동시에 보여주는 도구</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">iTerm2</span><span class="fn-text">Mac의 더 강력한 터미널 앱 (기본 터미널의 대체)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">settings.json</span><span class="fn-text">Claude Code 설정을 모아둔 파일 (권한·훅 등)</span></span>
   </div>
 </section>
 
@@ -2828,10 +2844,10 @@ allowed-tools: Read, Write
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span>쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">하네스</span>AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CSV</span><span class="fn-text">쉼표로 칸을 나눈 단순한 표 파일 (엑셀로도 열림)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">하네스</span><span class="fn-text">AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span></span>
   </div>
 </section>
 
@@ -2877,10 +2893,10 @@ allowed-tools: Read, Write
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PostToolUse</span>도구가 실행된 "직후" 시점 (자동 검증·후처리 용도)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">allowed-tools</span>이 명령 안에서만 허용할 도구 목록</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">settings.json</span>Claude Code 설정을 모아둔 파일 (권한·훅 등)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">PostToolUse</span><span class="fn-text">도구가 실행된 "직후" 시점 (자동 검증·후처리 용도)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">allowed-tools</span><span class="fn-text">이 명령 안에서만 허용할 도구 목록</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">settings.json</span><span class="fn-text">Claude Code 설정을 모아둔 파일 (권한·훅 등)</span></span>
   </div>
 </section>
 
@@ -2912,8 +2928,8 @@ allowed-tools: Read, Write
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">컨텍스트</span>AI가 답을 만들 때 참고하는 배경 정보</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">하네스</span>AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">컨텍스트</span><span class="fn-text">AI가 답을 만들 때 참고하는 배경 정보</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">하네스</span><span class="fn-text">AI가 업무를 끝까지 굴리도록 돕는 "운영 환경" 전체</span></span>
   </div>
 </section>
 
@@ -2957,10 +2973,10 @@ allowed-tools: Read, Write
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">PreToolUse</span>도구가 실행되기 "직전" 시점 (위험한 명령 차단 용도)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">PreToolUse</span><span class="fn-text">도구가 실행되기 "직전" 시점 (위험한 명령 차단 용도)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
   </div>
 </section>
 
@@ -3014,10 +3030,10 @@ claude mcp remove &lt;이름&gt;
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">acceptEdits</span>파일 편집을 매번 묻지 않고 자동 승인하는 모드</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Node.js</span>JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">PowerShell</span>Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">acceptEdits</span><span class="fn-text">파일 편집을 매번 묻지 않고 자동 승인하는 모드</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Node.js</span><span class="fn-text">JavaScript로 만든 도구를 컴퓨터에서 실행시켜주는 엔진 (Claude Code 설치에 필요)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">PowerShell</span><span class="fn-text">Windows의 기본 명령창 (Mac의 터미널과 비슷한 역할)</span></span>
   </div>
 </section>
 
@@ -3050,10 +3066,10 @@ claude mcp remove &lt;이름&gt;
   </div>
   
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Hooks</span>특정 사건이 벌어질 때 자동 실행되는 명령 (도어락처럼)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Slack</span>회사에서 많이 쓰는 메신저 (이메일 대체)</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">Hooks</span><span class="fn-text">특정 사건이 벌어질 때 자동 실행되는 명령 (도어락처럼)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">Slack</span><span class="fn-text">회사에서 많이 쓰는 메신저 (이메일 대체)</span></span>
   </div>
 </section>
 
@@ -3104,10 +3120,10 @@ claude mcp remove &lt;이름&gt;
   </div>
 
   <div class="footnotes">
-    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span>Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span>
-    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span>메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span>
-    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span>Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span>
-    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span>Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span>
+    <span class="fn"><span class="fn-num">1</span><span class="fn-term">Plan mode</span><span class="fn-text">Claude가 작업하기 전에 "이렇게 하려고 함" 계획만 먼저 보여주는 안전 모드</span></span>
+    <span class="fn"><span class="fn-num">2</span><span class="fn-term">Subagent</span><span class="fn-text">메인 Claude의 보조 역할을 하는 작은 AI (예: 코드 리뷰 전담)</span></span>
+    <span class="fn"><span class="fn-num">3</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
+    <span class="fn"><span class="fn-num">4</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
   </div>
 </section>
 
