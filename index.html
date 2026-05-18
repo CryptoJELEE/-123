@@ -128,13 +128,13 @@
   /* Cover/divider use centered layout — no scroll */
   .slide:has(.cover),
   .slide:has(.divider) { overflow: hidden; }
-  /* Subtle scrollbar styling */
-  .slide::-webkit-scrollbar { width: 8px; }
-  .slide::-webkit-scrollbar-track { background: transparent; }
-  .slide::-webkit-scrollbar-thumb {
-    background: var(--border-warm); border-radius: 4px;
+  /* Hide scrollbar UI but keep scroll functionality */
+  .slide { scrollbar-width: none; -ms-overflow-style: none; }
+  .slide::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
   }
-  .slide::-webkit-scrollbar-thumb:hover { background: var(--ring-warm); }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
