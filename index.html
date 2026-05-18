@@ -117,20 +117,22 @@
   .slide {
     position: absolute; inset: 0;
     display: none;
-    padding: 44px 64px 156px;
-    overflow: hidden;
+    padding: 44px 64px;
+    overflow-x: hidden;
+    overflow-y: auto;          /* allow vertical scroll when content overflows */
     animation: fadeIn 0.3s ease;
   }
-  /* Slides without footnotes get normal bottom padding */
-  .slide:not(:has(.footnotes)) {
-    padding: 44px 64px 48px;
-  }
-  /* Cover/divider use centered layout — keep small symmetric padding */
+  .slide.active { display: flex; flex-direction: column; }
+  /* Cover/divider use centered layout — no scroll */
   .slide:has(.cover),
-  .slide:has(.divider) {
-    padding: 44px 64px;
+  .slide:has(.divider) { overflow: hidden; }
+  /* Subtle scrollbar styling */
+  .slide::-webkit-scrollbar { width: 8px; }
+  .slide::-webkit-scrollbar-track { background: transparent; }
+  .slide::-webkit-scrollbar-thumb {
+    background: var(--border-warm); border-radius: 4px;
   }
-  .slide.active { display: block; }
+  .slide::-webkit-scrollbar-thumb:hover { background: var(--ring-warm); }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -569,15 +571,12 @@
 
   /* Footnotes — distinct band at slide bottom */
   .footnotes {
-    position: absolute;
-    left: 0; right: 0;
-    bottom: 0;
-    height: 140px;
-    padding: 22px 64px 24px 64px;
+    /* normal flow at the end of slide content — flex pushes it to bottom */
+    margin: auto -64px -44px;   /* top:auto pushes to bottom; horizontal extends full-width; bottom into padding */
+    flex-shrink: 0;
+    padding: 22px 64px 30px 64px;
     background: var(--parchment);
-    box-shadow:
-      inset 0 1px 0 var(--border-warm),
-      0 -12px 18px -6px var(--parchment);
+    box-shadow: inset 0 1px 0 var(--border-warm);
     font-family: var(--font-sans);
     font-size: 15px; line-height: 1.45;
     color: var(--olive-gray);
@@ -586,8 +585,8 @@
     grid-auto-rows: minmax(40px, auto);
     gap: 14px 36px;
     align-content: start;
-    overflow: hidden;
-    z-index: 5;
+    position: relative;
+    z-index: 2;
   }
   .footnotes .fn {
     display: flex; align-items: center;
@@ -1272,6 +1271,7 @@ pwd                 # 위치 확인</pre>
         <pre>node --version</pre>
       </div>
       <p>버전이 <strong>v18.x 이상</strong>이면 OK. 명령을 못 찾거나 낮은 버전이면 아래 단계로.</p>
+      <p class="small" style="margin-top:8px;">🚨 빨간 오류가 뜨면 <code class="inline">node.cmd --version</code> 처럼 <strong>.cmd</strong>를 붙여 다시 시도.</p>
     </div>
     <div class="card accent">
       <h4>2단계 — 설치 (필요 시)</h4>
@@ -1341,13 +1341,25 @@ pwd                 # 위치 확인</pre>
 # 1.x.x 같은 버전 번호가 나오면 성공</pre>
   </div>
 
-  <div style="background: #f7e7e0; border-left:5px solid var(--error-crimson); padding:14px 18px; border-radius:10px; margin-top: 16px; box-shadow: 0 0 0 1px #d99e85;">
-    <strong>🪟 Windows 사내 PC 안내</strong>
-    <p style="margin: 6px 0 0; font-size: 18px; line-height: 1.5;">
-      PowerShell 네이티브 인스톨러(<code class="inline">irm https://claude.ai/install.ps1 | iex</code>)는
-      많은 회사의 보안 정책 — <strong>실행 정책 차단·사내 프록시·SmartScreen</strong> — 으로 막힐 수 있습니다.
-      <strong>실제 사내 PC 테스트 결과 npm 방식이 안정적</strong>입니다. Node.js만 미리 깔려있으면 한 줄로 끝납니다.
-    </p>
+  <div class="grid-2" style="margin-top: 14px; gap: 14px;">
+    <div style="background: #f7e7e0; border-left:5px solid var(--error-crimson); padding:14px 18px; border-radius:10px; box-shadow: 0 0 0 1px #d99e85;">
+      <strong>🪟 Windows 사내 PC 안내</strong>
+      <p style="margin: 6px 0 0; font-size: 16px; line-height: 1.5;">
+        PowerShell 네이티브 인스톨러는 사내 보안 정책 (<strong>실행 정책·프록시·SmartScreen</strong>)으로 막힐 수 있습니다.
+        <strong>npm 방식이 안정적</strong> — Node.js만 미리 있으면 한 줄.
+      </p>
+    </div>
+    <div style="background: #f9f1de; border-left:5px solid var(--coral); padding:14px 18px; border-radius:10px; box-shadow: 0 0 0 1px #d9c485;">
+      <strong>🚨 빨간 오류가 뜨면 — <code class="inline">.cmd</code> 붙이기</strong>
+      <p style="margin: 6px 0 6px; font-size: 16px; line-height: 1.5;">
+        PowerShell이 <code class="inline">.cmd</code> 스크립트를 직접 못 부를 때가 있어요. 첫 명령어에 <code class="inline">.cmd</code>만 붙여 재시도:
+      </p>
+      <div style="font-family: var(--font-mono); font-size: 13px; background: var(--ivory); padding: 8px 12px; border-radius: 6px; box-shadow: 0 0 0 1px var(--border-warm); line-height: 1.7;">
+        npm -v → <strong style="color: var(--terracotta);">npm.cmd -v</strong><br>
+        claude --version → <strong style="color: var(--terracotta);">claude.cmd --version</strong><br>
+        npm install -g ... → <strong style="color: var(--terracotta);">npm.cmd install -g ...</strong>
+      </div>
+    </div>
   </div>
 
 
