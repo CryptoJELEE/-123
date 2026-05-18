@@ -117,7 +117,7 @@
   .slide {
     position: absolute; inset: 0;
     display: none;
-    padding: 44px 64px 120px;
+    padding: 44px 64px 156px;
     overflow: hidden;
     animation: fadeIn 0.3s ease;
   }
@@ -572,21 +572,24 @@
     position: absolute;
     left: 0; right: 0;
     bottom: 0;
-    height: 110px;
-    padding: 18px 64px 18px 64px;
-    background: linear-gradient(to bottom, transparent, rgba(232, 230, 220, 0.45) 20px);
+    height: 140px;
+    padding: 22px 64px 24px 64px;
+    background: linear-gradient(to bottom, transparent, rgba(232, 230, 220, 0.5) 24px);
     border-top: 1px solid var(--border-warm);
     font-family: var(--font-sans);
-    font-size: 15px; line-height: 1.5;
+    font-size: 15px; line-height: 1.45;
     color: var(--olive-gray);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px 32px;
+    grid-auto-rows: minmax(40px, auto);
+    gap: 14px 36px;
+    align-content: start;
     overflow: hidden;
   }
   .footnotes .fn {
-    display: flex; align-items: baseline;
+    display: flex; align-items: center;
     overflow: hidden;
+    min-height: 24px;
   }
   .footnotes .fn-text {
     overflow: hidden;
