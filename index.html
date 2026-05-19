@@ -1328,6 +1328,15 @@ pwd                 # 위치 확인</pre>
         <pre>curl -fsSL https://claude.ai/install.sh | bash</pre>
       </div>
       <p class="small muted" style="margin-top:8px;">설치 후 새 터미널 열기 (또는 <code class="inline">source ~/.zshrc</code>).</p>
+      <div style="background: #f9f1de; padding: 10px 14px; border-radius: 8px; margin-top: 10px; box-shadow: 0 0 0 1px #d9c485;">
+        <strong style="font-size: 14px;">🍎 빈 Mac에서 <code class="inline">source ~/.zshrc</code> 오류가 나면</strong>
+        <p class="small" style="margin: 4px 0 6px;"><code class="inline">no such file or directory</code> 메시지 — PATH가 등록 안 된 상태. 다음 한 줄 추가 후 다시 새 터미널:</p>
+        <div class="code-wrap" style="margin: 0;">
+          <span class="lang">bash · 새 Mac 일회성</span>
+          <button class="copy-btn" onclick="copyCode(this)">복사</button>
+          <pre>echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zshrc</pre>
+        </div>
+      </div>
     </div>
 
     <div class="os-col">
