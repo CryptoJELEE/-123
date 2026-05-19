@@ -1503,14 +1503,66 @@ claude</pre>
     </tbody>
   </table>
 
-  <div style="background: #f5f5f4; padding: 14px 18px; border-radius: 8px; margin-top: 20px;">
-    <strong>탈출:</strong> <code class="inline">/exit</code> 또는 <code class="inline">Ctrl+D</code>. 작업 중단은 <code class="inline">Esc</code> 또는 <code class="inline">Ctrl+C</code>.
+  <div style="background: var(--ivory); box-shadow: 0 0 0 1px var(--border-warm); padding: 14px 18px; border-radius: 8px; margin-top: 16px;">
+    <strong>종료:</strong> <code class="inline">/exit</code> 또는 <code class="inline">Ctrl+D</code> · <strong>강제 종료:</strong> <code class="inline">Ctrl+C</code> 두 번 연속 (Win/Mac 공통) · <strong>작업만 중단:</strong> <code class="inline">Esc</code>
   </div>
   
 
   <div class="footnotes">
     <span class="fn"><span class="fn-num">1</span><span class="fn-term">CLAUDE.md</span><span class="fn-text">Claude가 매번 자동으로 먼저 읽는 "메모장" 파일 (프로젝트 규칙·톤)</span></span>
     <span class="fn"><span class="fn-num">2</span><span class="fn-term">MCP</span><span class="fn-text">Claude를 외부 도구(슬랙·노션 등)와 표준 방식으로 연결하는 규격</span></span>
+  </div>
+</section>
+
+<!-- Shortcuts & Mac file handling -->
+<section class="slide">
+  <span class="chapter-tag c2">Part 2 · 실전 팁</span>
+  <h2>자주 쓰는 단축키 + 파일 찾기</h2>
+  <p class="lead muted">실습 중 막힐 수 있는 두 가지 — 미리 짚고 갑니다</p>
+
+  <div class="grid-2" style="margin-top: 16px;">
+    <div class="card accent">
+      <h4>⌨️ Claude 실행 중 단축키 (Win · Mac 공통)</h4>
+      <table style="margin-top: 8px;">
+        <thead><tr><th style="width: 180px;">키</th><th>동작</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inline">Ctrl + C</code> × 2</td><td><strong>강제 종료</strong> (Claude를 빠져나옴)</td></tr>
+          <tr><td><code class="inline">/exit</code> 또는 <code class="inline">Ctrl + D</code></td><td>정상 종료</td></tr>
+          <tr><td><code class="inline">Esc</code></td><td>작업만 중단 (대화는 유지)</td></tr>
+          <tr><td><code class="inline">Ctrl + L</code></td><td>화면 정리 (대화 유지)</td></tr>
+          <tr><td><code class="inline">Shift + Tab</code></td><td>모드 전환 (Plan ↔ AcceptEdits)</td></tr>
+        </tbody>
+      </table>
+      <p class="small" style="margin-top: 8px;">💡 한 번 Ctrl+C는 작업 중단, 두 번 연속이면 종료 — 헷갈리면 두 번이라고 외우세요.</p>
+    </div>
+
+    <div class="card">
+      <h4>🍎 Mac에서 생성된 파일 찾기</h4>
+      <p>Finder가 가끔 터미널 위치를 못 보여줍니다 (권한 이슈). 해결:</p>
+      <ol>
+        <li>먼저 Finder에서 직접 찾아보기</li>
+        <li>안 보이면 — <strong>새 터미널</strong> 열고:
+          <div class="code-wrap" style="margin: 6px 0;">
+            <span class="lang">zsh</span>
+            <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            <pre>open .</pre>
+          </div>
+        </li>
+        <li>Finder가 현재 폴더를 자동으로 열어줌</li>
+      </ol>
+
+      <h4 style="margin-top: 14px;">🍎 Mac에서 <code class="inline">.md</code> 파일 열기</h4>
+      <p class="small">더블클릭으로 열리면 무시. 안 열리면:</p>
+      <ol class="small">
+        <li>파일 우클릭 → "<strong>다음으로 열기</strong>"</li>
+        <li>"<strong>텍스트 편집기</strong>" 선택</li>
+        <li>(자주 쓰면) "기본 앱으로 설정" 체크</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>운전 비유</strong> — 액셀(명령 실행)은 익숙해도 <strong>비상등(Ctrl+C 두 번)</strong>과 <strong>주차 후 차 찾는 법(open .)</strong>은 미리 알아두세요. 실습 중에 막혔을 때 가장 빠른 탈출구입니다.
   </div>
 </section>
 
