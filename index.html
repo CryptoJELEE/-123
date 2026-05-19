@@ -136,6 +136,34 @@
     height: 0;
     display: none;
   }
+
+  /* Hover-to-copy on text blocks */
+  .copyable {
+    position: relative;
+  }
+  .copyable .text-copy-btn {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: var(--ivory);
+    color: var(--charcoal-warm);
+    border: none;
+    box-shadow: 0 0 0 1px var(--ring-warm);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 5;
+  }
+  .copyable:hover .text-copy-btn { opacity: 1; }
+  .copyable .text-copy-btn:hover { background: var(--warm-sand); }
+  .copyable .text-copy-btn.copied {
+    background: var(--terracotta);
+    color: var(--ivory);
+    box-shadow: 0 0 0 1px var(--terracotta);
+  }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -634,6 +662,7 @@
   <div class="title">Claude Code 하네스 엔지니어링 · 사내 교육 (4h)</div>
   <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
   <div class="nav-btns">
+    <button onclick="copySlide()" title="이 슬라이드 텍스트 전체 복사" id="copy-slide-btn">📋 복사</button>
     <button onclick="prev()" title="이전 (←)">◀</button>
     <span style="padding:4px 4px 4px 8px; font-variant-numeric: tabular-nums; display:inline-flex; align-items:center; gap:4px;">
       <input id="slide-input" type="number" min="1" value="1"
@@ -3362,6 +3391,59 @@ claude mcp remove &lt;이름&gt;
     });
   }
   window.copyCode = copyCode;
+
+  // Copy text block (cards, analogy, paragraphs, lists, hands-on)
+  function copyTextBlock(btn, ev) {
+    if (ev) ev.stopPropagation();
+    const el = btn.parentElement;
+    // Clone, strip out the copy button itself, get clean text
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll('.text-copy-btn').forEach(b => b.remove());
+    const text = clone.innerText.trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.classList.add('copied');
+      const orig = btn.textContent;
+      btn.textContent = '✓';
+      setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1200);
+    });
+  }
+  window.copyTextBlock = copyTextBlock;
+
+  // Copy entire current slide text
+  function copySlide() {
+    const cur = slides[i];
+    if (!cur) return;
+    const clone = cur.cloneNode(true);
+    // Remove buttons and footnote-num indicators (we keep footnote text)
+    clone.querySelectorAll('button, .copy-btn, .text-copy-btn, .slide-num').forEach(b => b.remove());
+    // Clean up: collapse extra whitespace, preserve line breaks
+    const text = clone.innerText.replace(/\n{3,}/g, '\n\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-slide-btn');
+      if (btn) {
+        btn.textContent = '✓ 복사됨';
+        setTimeout(() => { btn.textContent = '📋 복사'; }, 1500);
+      }
+    });
+  }
+  window.copySlide = copySlide;
+
+  // Auto-inject hover-copy buttons on text blocks
+  function injectTextCopyButtons() {
+    const selectors = '.card, .analogy, .handson, .phase, .mini-agenda .item, .anti';
+    document.querySelectorAll(selectors).forEach(el => {
+      if (el.querySelector(':scope > .text-copy-btn')) return;
+      el.classList.add('copyable');
+      const btn = document.createElement('button');
+      btn.className = 'text-copy-btn';
+      btn.type = 'button';
+      btn.textContent = '📋 복사';
+      btn.title = '이 박스 텍스트 복사';
+      btn.onclick = (e) => copyTextBlock(btn, e);
+      el.appendChild(btn);
+    });
+  }
+  injectTextCopyButtons();
   window.next = next;
   window.prev = prev;
 
