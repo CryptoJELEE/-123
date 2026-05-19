@@ -229,9 +229,9 @@
   .cover .meta { margin-top: 24px; color: var(--muted); font-size: 18px; }
 
   /* Layout helpers */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
 
   /* Cards — warm ivory surfaces with cream borders */
   .card {
@@ -308,10 +308,12 @@
 
   /* OS pair — Mac/Windows side-by-side (병기) */
   .os-pair {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
     margin: 14px 0;
   }
-  .os-col { display: flex; flex-direction: column; }
+  .os-col { display: flex; flex-direction: column; min-width: 0; }
   .os-label {
     font-size: 17px; font-weight: 700;
     padding: 6px 12px; border-radius: 6px 6px 0 0;
