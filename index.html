@@ -1237,18 +1237,31 @@
 <!-- Basic commands -->
 <section class="slide">
   <span class="chapter-tag c1">Part 1 · 강의</span>
-  <h2>오늘 외워야 할 명령어는 단 5개</h2>
+  <h2>오늘 외워야 할 명령어 6개</h2>
 
   <table style="margin-top: 20px;">
-    <thead><tr><th style="width:120px;">명령</th><th>의미</th><th>예시</th></tr></thead>
+    <thead><tr><th style="width:140px;">명령</th><th>의미</th><th>예시</th></tr></thead>
     <tbody>
       <tr><td><code class="inline">pwd</code></td><td>지금 어느 폴더에 있는지 출력 (print working directory)</td><td><code class="inline">pwd</code></td></tr>
       <tr><td><code class="inline">ls</code></td><td>현재 폴더의 파일 목록 (Windows는 <code class="inline">dir</code>)</td><td><code class="inline">ls</code></td></tr>
       <tr><td><code class="inline">cd</code></td><td>폴더 이동 (change directory)</td><td><code class="inline">cd Documents</code></td></tr>
       <tr><td><code class="inline">mkdir</code></td><td>새 폴더 만들기</td><td><code class="inline">mkdir my-project</code></td></tr>
       <tr><td><code class="inline">cd ..</code></td><td>상위 폴더로 가기</td><td><code class="inline">cd ..</code></td></tr>
+      <tr><td><code class="inline">vi</code></td><td>터미널 안에서 텍스트 파일 만들기·편집 (Part 5 실습에 사용)</td><td><code class="inline">vi notes.md</code></td></tr>
     </tbody>
   </table>
+
+  <div style="background: var(--ivory); box-shadow: 0 0 0 1px var(--border-warm); padding: 12px 16px; border-radius: 8px; margin-top: 14px;">
+    <strong>📝 vi 사용법 — 5단계만 외워두세요 (Part 5에서 실제 사용)</strong>
+    <div style="margin-top: 6px; font-size: 16px; line-height: 1.7; color: var(--charcoal-warm);">
+      ① <code class="inline">vi 파일명</code> 으로 실행 →
+      ② <code class="inline">i</code> 키 → 입력 모드 →
+      ③ 내용 붙여넣기 →
+      ④ <code class="inline">Esc</code> 키 →
+      ⑤ <code class="inline">:wq</code> + Enter → 저장하고 종료
+    </div>
+    <p class="small muted" style="margin-top: 6px;">💡 vi가 어색하면 텍스트 편집기(메모장·VS Code·TextEdit)로 만들어도 OK. 또는 Claude에게 "이 내용으로 파일 만들어줘" 부탁도 가능.</p>
+  </div>
 
   <h3 style="margin-top:24px;">한번 같이 해봅시다 (1분)</h3>
   <div class="code-wrap">
@@ -2594,7 +2607,15 @@ allowed-tools: Read, Glob, Write, Edit
     <h3>Part A — Slash Command (7분)</h3>
     <ol class="small">
       <li>Mac: <code class="inline">mkdir -p .claude/commands</code> / Windows: <code class="inline">mkdir .claude\commands</code></li>
-      <li><code class="inline">.claude/commands/회의록정리.md</code> 파일 생성:</li>
+      <li><strong><code class="inline">.claude/commands/회의록정리.md</code> 파일 생성</strong> — vi로 만드는 5단계:
+        <ol style="margin-top: 4px;">
+          <li><strong>새 터미널</strong>을 열고 <code class="inline">cd ~/claude-training/weekly-report</code> 로 이동</li>
+          <li>터미널에 <code class="inline">vi .claude/commands/회의록정리.md</code> 입력 → vi 편집기 실행 (빈 화면)</li>
+          <li>키보드 <code class="inline">i</code> 누름 → 입력 모드 (좌하단에 <code class="inline">-- INSERT --</code>)</li>
+          <li>아래 박스의 코드를 복사 → 터미널에 붙여넣기 (Mac: <code class="inline">⌘+V</code> · Win: 우클릭 또는 <code class="inline">Ctrl+Shift+V</code>)</li>
+          <li><code class="inline">Esc</code> 키 → <code class="inline">:wq</code> 입력 후 Enter → 저장하고 종료</li>
+        </ol>
+      </li>
     </ol>
     <div class="code-wrap">
       <span class="lang">markdown</span>
@@ -2624,6 +2645,10 @@ allowed-tools: Read, Write
 한국어로, 사실만. 추측 금지.</pre>
     </div>
     <p class="small">→ 사용: <code class="inline">/회의록정리</code> 입력 → 회의록 텍스트를 이어서 붙여넣기</p>
+
+    <div style="background: #f9f1de; box-shadow: 0 0 0 1px #d9c485; padding: 10px 14px; border-radius: 8px; margin-top: 8px; font-size: 14px;">
+      💡 <strong>vi가 어색하면?</strong> 텍스트 편집기(VS Code·메모장·TextEdit)로 같은 파일을 만들어 같은 위치에 저장해도 OK. 또는 Claude에게 <em>"위 내용으로 <code class="inline">.claude/commands/회의록정리.md</code> 파일 만들어줘"</em> 라고 부탁해도 한 번에 됩니다.
+    </div>
 
     <h3 style="margin-top:12px;">Part B — Hook (8분)</h3>
     <ul class="check-list">
